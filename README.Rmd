@@ -1,0 +1,22 @@
+---
+output: 
+  github_document
+--- 
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+## Description
+
+This package performs inference on the Pratt index.
+
+## Installation
+
+```{R, eval=FALSE}
+remotes::install_github("zrmacc/PrattIndex", build_vignettes = TRUE)
+```
+
+
+
+
