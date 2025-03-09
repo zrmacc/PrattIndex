@@ -41,9 +41,8 @@ head(data)
 
 The Pratt index is the element-wise product of the marginal correlations
 $\hat{r} = X^{\top}y$ with the regression coefficients from the joint
-model $\hat{\beta} + (X^{\top}X)^{-1}X^{\top}y$. `PrattIndex` calculates
-the Pratt index as well as various intermediates used in the
-calculation.
+model $\hat{\beta} = (X^{\top}X)^{-1}X^{\top}y$. `PrattIndex` calculates
+the Pratt index as well as various intermediates.
 
 ``` r
 y <- data$y
