@@ -10,7 +10,7 @@
 #' @noRd
 .GenGeno <- function(n, maf) {
   g <- stats::rbinom(n = n, size = 2, prob = maf)
-  out <- (g - mean(g)) / sd(g)
+  out <- (g - mean(g)) / stats::sd(g)
   return(out)
 }
 
@@ -22,7 +22,7 @@
 #' @noRd
 .GenEnv <- function(n) {
   e <- stats::rnorm(n = n)
-  out <- (e - mean(e)) / sd(e)
+  out <- (e - mean(e)) / stats::sd(e)
   return(out)
 }
 
@@ -35,7 +35,7 @@
 #' @noRd
 .GenInt <- function(g, e) {
   h <- g * e
-  out <- (h - mean(g)) / sd(h)
+  out <- (h - mean(g)) / stats::sd(h)
   return(out)
 }
 
@@ -83,8 +83,9 @@ GenPheno <- function(beta, x) {
   eta <- as.numeric(data.matrix(x) %*% beta)
   
   # Residuals.
+  n <- length(eta)
   eps <- stats::rnorm(n) 
-  eps <- (eps - mean(eps)) / sd(eps)
+  eps <- (eps - mean(eps)) / stats::sd(eps)
   eps <- sqrt(resid_var) * eps
   
   # Phenotype.
@@ -100,7 +101,6 @@ GenPheno <- function(beta, x) {
 #' @param beta_e Environment beta.
 #' @param beta_h Interaction beta.
 #' @param maf Genetic minor allele frequency. 
-#' @param 
 #' @export 
 GenData <- function(
   n = 1000,  
@@ -119,7 +119,7 @@ GenData <- function(
   
   # Output.
   out <- x
-  out$y <- (y - mean(y)) / sd(y)
+  out$y <- (y - mean(y)) / stats::sd(y)
   return(out)
 }
 
