@@ -213,6 +213,7 @@ SEXP PrattIndex(
   
   // Correlations.
   const int n = x.n_rows;
+  const int p = x.n_cols;
   const arma::colvec r = x_std.t() * y_std / n;
   const arma::mat R = x_std.t() * x_std / n;
   
@@ -226,11 +227,21 @@ SEXP PrattIndex(
   // Variation explained.
   const double var_exp = arma::as_scalar(y_std.t() * x_std * beta / n);
   
+  // Calculate variance.
+  arma::colvec pratt_var = arma::zeros(p);
+  const arma::mat Rinv = arma::pinv(R);
+  for(int i = 0; i < p; i++) {
+    double sigma = r(i) * Rinv(i, i) * r(i) + beta(i) * R(i, i) * beta(i) + 2 * beta(i) * r(i);
+    pratt_var(i) = sigma / n; 
+  }
+  
+  // Output.
   return Rcpp::List::create(
     Rcpp::Named("beta") = beta,
     Rcpp::Named("pratt") = pratt,
     Rcpp::Named("r") = r,
     Rcpp::Named("R") = R,
+    Rcpp::Named("pratt_var") = pratt_var,
     Rcpp::Named("var_exp") = var_exp
   );
 };
