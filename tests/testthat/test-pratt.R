@@ -1,3 +1,5 @@
+library(testthat)
+
 test_that("Test Pratt index calculation.", {
   
   # Compare.
@@ -23,7 +25,7 @@ test_that("Test Pratt index calculation.", {
   
   # Observed.
   # Note: turning on standardization results in small numeric discrepancies.
-  obs <- PrattIndex(y = y, x = x, standard = FALSE)
+  obs <- PrattIndex(y = y, x = x, standardize = FALSE)
   
   # Compare.
   Compare(obs$beta, beta)

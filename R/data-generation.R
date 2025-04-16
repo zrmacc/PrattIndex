@@ -1,5 +1,5 @@
 # Purpose: Simulate data.
-# Updated: 2025-03-08
+# Updated: 2025-03-21
 
 
 #' Simulate Genotype
@@ -35,7 +35,7 @@
 #' @noRd
 .GenInt <- function(g, e) {
   h <- g * e
-  out <- (h - mean(g)) / stats::sd(h)
+  out <- (h - mean(h)) / stats::sd(h)
   return(out)
 }
 
@@ -67,6 +67,8 @@ GenCovar <- function(n, maf) {
 
 
 #' Generate Phenotype
+#' 
+#' Uses the centered g and e to form the interaction.
 #' 
 #' @param beta 3 x 1 beta vector for the joint model.
 #' @param x n x 3 covariate data.frame. 
@@ -119,7 +121,7 @@ GenData <- function(
   
   # Output.
   out <- x
-  out$y <- (y - mean(y)) / stats::sd(y)
+  out$y <- y
   return(out)
 }
 

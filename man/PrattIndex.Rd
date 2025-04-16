@@ -4,23 +4,27 @@
 \alias{PrattIndex}
 \title{Pratt Index}
 \usage{
-PrattIndex(y, x, standard = TRUE)
+PrattIndex(y, x, standardize = TRUE)
 }
 \arguments{
 \item{y}{(n x 1) Numeric vector.}
 
 \item{x}{(n x p) Numeric matrix.}
 
-\item{standard}{Standardize y and x?}
+\item{Standardize}{y and x?}
 }
 \value{
 List containing the following:
 \itemize{
-\item{beta: Regression coefficients.}
-\item{r: Correlations between y and the columns of x.}
-\item{R: Correlations among the columns of x.}
-\item{pratt: Pratt indices for the columns of x.}
-\item{var_exp: Variance in y explained by x.}
+\item{beta: (p x 1) vector of regression coefficient.}
+\item{var_beta: (p x p) sampling variance of the regression coefficients.}
+\item{r: (p x 1) vector of correlations between y and each column of x..}
+\item{var_r: (p x p) sampling variance of r.}
+\item{R: (p x p) correlation marix among the columns of x.}
+\item{pratt: (p x 1) Pratt indices, defined as the element-wise product of beta and r.}
+\item{var_pratt: (p x 1) sampling variance of Pratt indices.}
+\item{resid_var: scalar residual variance of y conditional on x.}
+\item{var_exp: scalar variance in y explained by x.}
 }
 }
 \description{

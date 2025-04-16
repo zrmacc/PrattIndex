@@ -11,48 +11,21 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// Corr
-SEXP Corr(const arma::colvec y, const arma::mat x);
-RcppExport SEXP _PrattIndex_Corr(SEXP ySEXP, SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(Corr(y, x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// OLS
-SEXP OLS(const arma::colvec y, const arma::mat x, const bool standard);
-RcppExport SEXP _PrattIndex_OLS(SEXP ySEXP, SEXP xSEXP, SEXP standardSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const bool >::type standard(standardSEXP);
-    rcpp_result_gen = Rcpp::wrap(OLS(y, x, standard));
-    return rcpp_result_gen;
-END_RCPP
-}
 // PrattIndex
-SEXP PrattIndex(const arma::colvec y, const arma::mat x, const bool standard);
-RcppExport SEXP _PrattIndex_PrattIndex(SEXP ySEXP, SEXP xSEXP, SEXP standardSEXP) {
+SEXP PrattIndex(arma::colvec y, arma::mat x, const bool standardize);
+RcppExport SEXP _PrattIndex_PrattIndex(SEXP ySEXP, SEXP xSEXP, SEXP standardizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const bool >::type standard(standardSEXP);
-    rcpp_result_gen = Rcpp::wrap(PrattIndex(y, x, standard));
+    Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const bool >::type standardize(standardizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(PrattIndex(y, x, standardize));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_PrattIndex_Corr", (DL_FUNC) &_PrattIndex_Corr, 2},
-    {"_PrattIndex_OLS", (DL_FUNC) &_PrattIndex_OLS, 3},
     {"_PrattIndex_PrattIndex", (DL_FUNC) &_PrattIndex_PrattIndex, 3},
     {NULL, NULL, 0}
 };

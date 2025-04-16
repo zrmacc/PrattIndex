@@ -15,5 +15,5 @@ GenPheno(beta, x)
 n x 1 phenotype vector.
 }
 \description{
-Generate Phenotype
+Uses the centered g and e to form the interaction.
 }
