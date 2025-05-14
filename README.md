@@ -13,9 +13,13 @@ remotes::install_github("zrmacc/PrattIndex", build_vignettes = TRUE)
 
 Simulates data with a phenotype $Y$ that depends on 3 factors: genotype
 $G$, environment $E$, and the gene-by-environment interaction
-$H = G \times E$. The phenotype is generated from the model: $$
+$H = G \times E$. The phenotype is generated from the model: 
+
+$$
 Y = G\beta_{G} + E\beta_{E} + H\beta_{H} + \epsilon,
-$$ where $\epsilon$ is normally distributed with mean 0 and variance
+$$ 
+
+where $\epsilon$ is normally distributed with mean 0 and variance
 $\sigma_{\epsilon}^{2}$.
 
 ``` r
