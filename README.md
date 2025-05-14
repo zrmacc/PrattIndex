@@ -11,68 +11,47 @@ remotes::install_github("zrmacc/PrattIndex", build_vignettes = TRUE)
 
 ## Simulate data
 
-Simulates data with a phenotype $y$ and 3 covariates $g$ denoting
-genotype, $e$ denoting the environment, and $h = g \times e$ denoting
-the interaction. All variables are standardized to have mean 0 and
-variance 1. The phenotype is related to the covariates by: $$
-y = g\beta_{G} + e\beta_{E} + h\beta_{H} + \epsilon,
+Simulates data with a phenotype $Y$ that depends on 3 factors: genotype
+$G$, environment $E$, and the gene-by-environment interaction
+$H = G \times E$. The phenotype is generated from the model: $$
+Y = G\beta_{G} + E\beta_{E} + H\beta_{H} + \epsilon,
 $$ where $\epsilon$ is normally distributed with mean 0 and variance
-$1 - \beta_{G}^{2} - \beta_{E}^{2} - \beta_{H}^{2}$.
+$\sigma_{\epsilon}^{2}$.
 
 ``` r
+set.seed(101)
 data <- PrattIndex::GenData(
   n = 1e3,
-  beta_g = 0.1,
-  beta_e = 0.1,
-  beta_h = 0.0
+  beta_g = 0.5,
+  beta_e = 0.5,
+  beta_h = 0.5,
+  var_resid = 0.5
 )
 head(data)
 ```
 
-    ##            g          e           h          y
-    ## 1  0.8303156 -0.6290048 -0.52599458 -0.3364087
-    ## 2 -0.7913946 -0.1200337  0.09567101 -0.4974543
-    ## 3 -0.7913946  1.5456556 -1.23194107  3.0596695
-    ## 4 -0.7913946  1.2509762 -0.99707138  1.2758921
-    ## 5  0.8303156  0.5429623  0.45404307  1.7484262
-    ## 6  0.8303156  2.6401242  2.20775917  2.5729902
+    ##   g           e          h           y
+    ## 1 0 -1.27235813  0.0000000 -0.60459127
+    ## 2 0 -0.66307158  0.0000000  0.07030683
+    ## 3 1 -0.29654313 -0.2965431 -0.23086574
+    ## 4 1 -0.57396643 -0.5739664  0.32733142
+    ## 5 0 -0.02617408  0.0000000  0.11470254
+    ## 6 0  0.25972722  0.0000000 -2.18571720
 
 ## Calculate the Pratt Index
 
-The Pratt index is the element-wise product of the marginal correlations
-$\hat{r} = X^{\top}y$ with the regression coefficients from the joint
-model $\hat{\beta} = (X^{\top}X)^{-1}X^{\top}y$. `PrattIndex` calculates
-the Pratt index as well as various intermediates.
+The function `PrattTest` estimates the p-value, calculates the standard
+error, and calculates the 1-sided p-value against the null hypothesis
+$H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because
+`beta_h != 0`.
 
 ``` r
-y <- data$y
-x <- as.matrix(data[, c("g", "e", "h")])
-pratt_comps <- PrattIndex::PrattIndex(y = y, x = x)
+# Run the Pratt index test for interaction.
+result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e)
 
-cat("Joint model regression coefficients:")
-show(pratt_comps$beta)
-cat("\n")
-
-cat("Marginal correlation coefficients:")
-show(pratt_comps$r)
-cat("\n")
-
-cat("Pratt indices:")
-show(pratt_comps$pratt)
-cat("\n")
+# Here we expect a significant result because beta_h != 0.
+show(result)
 ```
 
-    ## Joint model regression coefficients:            [,1]
-    ## [1,]  0.06568554
-    ## [2,]  0.12561034
-    ## [3,] -0.04462223
-    ## 
-    ## Marginal correlation coefficients:            [,1]
-    ## [1,]  0.06776428
-    ## [2,]  0.12749280
-    ## [3,] -0.05589877
-    ## 
-    ## Pratt indices:            [,1]
-    ## [1,] 0.004451133
-    ## [2,] 0.016014414
-    ## [3,] 0.002494328
+    ##       pratt   se_pratt     lower     upper         pval
+    ## 1 0.2326211 0.01151283 0.2100564 0.2551859 4.389066e-91

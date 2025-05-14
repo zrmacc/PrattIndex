@@ -22,8 +22,6 @@ LinkingTo:
     Rcpp,
     RcppArmadillo
 Imports: 
-    glue,
-    CompQuadForm,
     Rcpp,
     stats
 VignetteBuilder: knitr

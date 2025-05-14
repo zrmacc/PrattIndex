@@ -3,5 +3,6 @@
 export(Expected)
 export(GenData)
 export(PrattIndex)
+export(PrattTest)
 importFrom(Rcpp,sourceCpp)
 useDynLib(PrattIndex, .registration = TRUE)

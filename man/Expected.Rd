@@ -4,18 +4,7 @@
 \alias{Expected}
 \title{Expected values}
 \usage{
-Expected(
-  beta_g,
-  mu_g,
-  var_g,
-  beta_e,
-  mu_e,
-  var_e,
-  beta_h,
-  mu_h,
-  var_h,
-  var_resid
-)
+Expected(beta_g, mu_g, var_g, beta_e, mu_e, var_e, beta_h, var_resid)
 }
 \arguments{
 \item{beta_g}{Joint coefficient for G.}

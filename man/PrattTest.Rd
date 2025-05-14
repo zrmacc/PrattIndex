@@ -4,16 +4,16 @@
 \alias{PrattTest}
 \title{Pratt Test}
 \usage{
-PrattTest(g, e, y, standardize = TRUE)
+PrattTest(y, g, e, alpha = 0.05)
 }
 \arguments{
+\item{y}{Phenotype.}
+
 \item{g}{Genotype vector.}
 
 \item{e}{Environmental exposure.}
 
-\item{y}{Phenotype.}
-
-\item{standardize}{Standardize?}
+\item{alpha}{Alpha for confidence intervals.}
 }
 \value{
 Data.frame.

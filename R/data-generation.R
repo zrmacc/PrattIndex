@@ -93,7 +93,7 @@ GenPheno <- function(
   
   if (is.null(var_resid)) {
     # Generate covariance matrix.
-    S <- cov(x)
+    S <- stats::cov(x)
     
     # Calculate variance of main effect.
     main_var <- as.numeric(t(beta) %*% S %*% beta)

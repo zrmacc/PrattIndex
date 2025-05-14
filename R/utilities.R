@@ -24,8 +24,6 @@ Expected <- function(
   mu_e,
   var_e,
   beta_h,
-  mu_h,
-  var_h,
   var_resid 
 ) {
   

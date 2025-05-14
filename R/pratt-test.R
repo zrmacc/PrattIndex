@@ -1,52 +1,31 @@
 # Purpose: Pratt index test.
-# Updated: 25-05-12
+# Updated: 25-05-14
 
 #' Pratt Test
 #' 
+#' @param y Phenotype.
 #' @param g Genotype vector.
 #' @param e Environmental exposure.
-#' @param y Phenotype.
-#' @param standardize Standardize?
+#' @param alpha Alpha for confidence intervals.
 #' @return Data.frame.
-PrattTest <- function(g, e, y, standardize = TRUE) {
+#' @export
+PrattTest <- function(y, g, e, alpha = 0.05) {
   
-  # Standardize.
-  if (standardize) {
-    g <- Standardize(g)
-    e <- Standardize(e)
-  }
-  
-  # Form interaction.
-  h <- g * e
-  if (standardize) {
-    h <- Standardize(h)
-  }
-  
-  x <- cbind(g, e, h)
-  
-  # Pratt index.
-  pratt <- PrattIndex(y = y, x = x)
-  kappa <- pratt$pratt[3]
-  
-  # P-value calculation.
-  lambda <- pratt$eigenval
-  lambda <- lambda[abs(lambda) > 1e-12]
-  davies_output <- CompQuadForm::davies(q = kappa, lambda = pratt$eigenval)
-  if (davies_output$ifault != 0) {
-    pval <- CompQuadForm::liu(q = kappa, lambda = pratt$eigenval)
-  } else {
-    pval <- davies_output$Qq
-  }
+  # Calculate Pratt Index.
+  pratt <- PrattIndex(
+    y = y,
+    g = g,
+    e = e
+  )
   
   # Output.
+  z <- stats::qnorm(p = 1 - alpha / 2)
   out <- data.frame(
-    pratt = kappa,
-    mean = sum(lambda),
-    var = 2 * sum(lambda^2),
-    pval = pval
+    pratt = pratt$pratt,
+    se_pratt = sqrt(pratt$var_pratt)
   )
+  out$lower <- out$pratt - z * out$se_pratt
+  out$upper <- out$pratt + z * out$se_pratt
+  out$pval <- stats::pnorm(out$pratt / out$se_pratt, lower.tail = FALSE)
   return(out)
 }
-
-
-
