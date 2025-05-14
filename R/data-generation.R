@@ -1,41 +1,50 @@
 # Purpose: Simulate data.
-# Updated: 2025-03-21
+# Updated: 2025-05-14
 
 
 #' Simulate Genotype
 #' 
 #' @param n Sample size.
 #' @param maf Minor allele frequency.
-#' @return Standardized genotype.
+#' @return Genotype.
 #' @noRd
 .GenGeno <- function(n, maf) {
   g <- stats::rbinom(n = n, size = 2, prob = maf)
-  out <- (g - mean(g)) / stats::sd(g)
-  return(out)
+  return(g)
 }
 
 
 #' Simulate Environment
 #' 
 #' @param n Sample size.
-#' @return Standardized environment.
+#' @return Environment.
 #' @noRd
 .GenEnv <- function(n) {
   e <- stats::rnorm(n = n)
-  out <- (e - mean(e)) / stats::sd(e)
-  return(out)
+  return(e)
 }
 
 
 #' Generate Interaction
 #' 
-#' @param g Standardized genotype.
-#' @param e Standardized environment.
-#' @return Standardized interaction.
+#' @param g Genotype.
+#' @param e Environment.
+#' @return Interaction.
 #' @noRd
 .GenInt <- function(g, e) {
   h <- g * e
-  out <- (h - mean(h)) / stats::sd(h)
+  return(h)
+}
+
+
+#' Standardize
+#' 
+#' @param x Numeric vector.
+#' @return Standardized vector.
+#' @noRd
+Standardize <- function(x) {
+  out <- x - mean(x)
+  out <- out / sqrt(mean(out^2))
   return(out)
 }
 
@@ -72,23 +81,38 @@ GenCovar <- function(n, maf) {
 #' 
 #' @param beta 3 x 1 beta vector for the joint model.
 #' @param x n x 3 covariate data.frame. 
+#' @param var_exp Proportion of variance explained by main effects.
+#' @param var_resid Residual variance explained. Set to null to specify `var_exp` instead.
 #' @return n x 1 phenotype vector.
-GenPheno <- function(beta, x) {
+GenPheno <- function(
+    beta, 
+    x,
+    var_exp,
+    var_resid = NULL
+) {
   
-  # Check coefficients.
-  resid_var <- (1 - sum(beta^2))
-  if (resid_var < 0) {
-    stop(glue::glue("Implied residual variance {sprintf('%.1e', resid_var)} is negative."))
+  if (is.null(var_resid)) {
+    # Generate covariance matrix.
+    S <- cov(x)
+    
+    # Calculate variance of main effect.
+    main_var <- as.numeric(t(beta) %*% S %*% beta)
+    
+    # Calculate residual variance.
+    sigma2 <- (main_var - var_exp * main_var) / var_exp
+    
+  } else {
+    
+    sigma2 <- var_resid
+    
   }
-  
+
   # Linear predictor.
   eta <- as.numeric(data.matrix(x) %*% beta)
   
   # Residuals.
   n <- length(eta)
-  eps <- stats::rnorm(n) 
-  eps <- (eps - mean(eps)) / stats::sd(eps)
-  eps <- sqrt(resid_var) * eps
+  eps <- sqrt(sigma2) * stats::rnorm(n) 
   
   # Phenotype.
   y <- eta + eps
@@ -103,21 +127,30 @@ GenPheno <- function(beta, x) {
 #' @param beta_e Environment beta.
 #' @param beta_h Interaction beta.
 #' @param maf Genetic minor allele frequency. 
+#' @param var_exp Proportion of variance explained by main effects.
+#' @param var_resid Residual variance. Set to null to specify `var_exp` instead.
 #' @export 
 GenData <- function(
   n = 1000,  
   beta_g = 0.1,
   beta_e = 0.1,
   beta_h = 0.0,
-  maf = 0.25
+  maf = 0.25,
+  var_exp = 0.25,
+  var_resid = NULL
 ) {
   
   # Covariates.
   x <- GenCovar(n = n, maf = maf)
-  
+
   # Phenotype.
   beta <- c(beta_g, beta_e, beta_h)
-  y <- GenPheno(beta, x)
+  y <- GenPheno(
+    beta = beta, 
+    x = x,
+    var_exp = var_exp,
+    var_resid = var_resid
+  )
   
   # Output.
   out <- x

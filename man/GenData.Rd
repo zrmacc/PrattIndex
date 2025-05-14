@@ -4,7 +4,15 @@
 \alias{GenData}
 \title{Generate Data}
 \usage{
-GenData(n = 1000, beta_g = 0.1, beta_e = 0.1, beta_h = 0, maf = 0.25)
+GenData(
+  n = 1000,
+  beta_g = 0.1,
+  beta_e = 0.1,
+  beta_h = 0,
+  maf = 0.25,
+  var_exp = 0.25,
+  var_resid = NULL
+)
 }
 \arguments{
 \item{n}{Sample size.}
@@ -16,6 +24,10 @@ GenData(n = 1000, beta_g = 0.1, beta_e = 0.1, beta_h = 0, maf = 0.25)
 \item{beta_h}{Interaction beta.}
 
 \item{maf}{Genetic minor allele frequency.}
+
+\item{var_exp}{Proportion of variance explained by main effects.}
+
+\item{var_resid}{Residual variance. Set to null to specify \code{var_exp} instead.}
 }
 \description{
 Generate Data

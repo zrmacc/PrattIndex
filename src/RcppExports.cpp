@@ -12,15 +12,15 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // PrattIndex
-SEXP PrattIndex(arma::colvec y, arma::mat x, const bool standardize);
-RcppExport SEXP _PrattIndex_PrattIndex(SEXP ySEXP, SEXP xSEXP, SEXP standardizeSEXP) {
+SEXP PrattIndex(arma::colvec y, arma::colvec g, arma::colvec e);
+RcppExport SEXP _PrattIndex_PrattIndex(SEXP ySEXP, SEXP gSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const bool >::type standardize(standardizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(PrattIndex(y, x, standardize));
+    Rcpp::traits::input_parameter< arma::colvec >::type g(gSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type e(eSEXP);
+    rcpp_result_gen = Rcpp::wrap(PrattIndex(y, g, e));
     return rcpp_result_gen;
 END_RCPP
 }

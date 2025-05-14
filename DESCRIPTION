@@ -1,6 +1,6 @@
 Package: PrattIndex
 Title: Inference on the Pratt Index
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person(given = "Zachary",
            family = "McCaw",
@@ -23,6 +23,7 @@ LinkingTo:
     RcppArmadillo
 Imports: 
     glue,
+    CompQuadForm,
     Rcpp,
     stats
 VignetteBuilder: knitr

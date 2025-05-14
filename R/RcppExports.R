@@ -6,22 +6,19 @@
 #' Calculate the Pratt index and intermediates.
 #'
 #' @param y (n x 1) Numeric vector.
-#' @param x (n x p) Numeric matrix. 
-#' @param Standardize y and x?
+#' @param g (n x 1) Genotype vector.
+#' @param e (n x 1) Environment vector.
 #' @return List containing the following:
 #' \itemize{
-#' \item{beta: (p x 1) vector of regression coefficient.}
-#' \item{var_beta: (p x p) sampling variance of the regression coefficients.}
-#' \item{r: (p x 1) vector of correlations between y and each column of x..}
-#' \item{var_r: (p x p) sampling variance of r.}
-#' \item{R: (p x p) correlation marix among the columns of x.}
-#' \item{pratt: (p x 1) Pratt indices, defined as the element-wise product of beta and r.}
-#' \item{var_pratt: (p x 1) sampling variance of Pratt indices.}
-#' \item{resid_var: scalar residual variance of y conditional on x.}
-#' \item{var_exp: scalar variance in y explained by x.}
+#' \item{beta: (3 x 1) vector of regression coefficient.}
+#' \item{pratt: Scalar Pratt index of the interaction term.}
+#' \item{sigma2: Scalar residual variance from the joint model.}
+#' \item{var_beta: (3 x 3) sampling variance of the regression coefficients.}
+#' \item{var_exp: Scalar variance in y explained by x.}
+#' \item{var_pratt: Scalar sampling variance of the pratt index.}
 #' }
 #' @export
-PrattIndex <- function(y, x, standardize = TRUE) {
-    .Call(`_PrattIndex_PrattIndex`, y, x, standardize)
+PrattIndex <- function(y, g, e) {
+    .Call(`_PrattIndex_PrattIndex`, y, g, e)
 }
 
