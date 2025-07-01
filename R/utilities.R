@@ -1,5 +1,5 @@
 # Purpose: Utility functions for Pratt Index
-# Updated: 25-05-14
+# Updated: 2025-05-15
 
 #' Expected values
 #' 

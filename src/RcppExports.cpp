@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// FitOLS
+SEXP FitOLS(const arma::colvec y, const arma::mat X);
+RcppExport SEXP _PrattIndex_FitOLS(SEXP ySEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(FitOLS(y, X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // PrattIndex
 SEXP PrattIndex(arma::colvec y, arma::colvec g, arma::colvec e);
 RcppExport SEXP _PrattIndex_PrattIndex(SEXP ySEXP, SEXP gSEXP, SEXP eSEXP) {
@@ -24,9 +36,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// MatrixSqrt
+SEXP MatrixSqrt(const arma::mat& S, double eps);
+RcppExport SEXP _PrattIndex_MatrixSqrt(SEXP SSEXP, SEXP epsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type S(SSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(MatrixSqrt(S, eps));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_PrattIndex_FitOLS", (DL_FUNC) &_PrattIndex_FitOLS, 2},
     {"_PrattIndex_PrattIndex", (DL_FUNC) &_PrattIndex_PrattIndex, 3},
+    {"_PrattIndex_MatrixSqrt", (DL_FUNC) &_PrattIndex_MatrixSqrt, 2},
     {NULL, NULL, 0}
 };
 
