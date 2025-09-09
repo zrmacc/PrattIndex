@@ -3,7 +3,6 @@
 \docType{package}
 \name{PrattIndex-package}
 \alias{PrattIndex-package}
-\alias{_PACKAGE}
 \title{PrattIndex: Inference on the Pratt Index}
 \description{
 Inference on the Pratt Index.

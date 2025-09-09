@@ -4,12 +4,30 @@
 \alias{GenCovar}
 \title{Generate Covariates}
 \usage{
-GenCovar(n, maf)
+GenCovar(
+  n,
+  maf = 0.25,
+  mu_e = 0,
+  mu_g = NULL,
+  type_g = "binom",
+  var_e = 1,
+  var_g = NULL
+)
 }
 \arguments{
 \item{n}{Sample size.}
 
 \item{maf}{Minor allele frequency.}
+
+\item{mu_e}{Mean of E.}
+
+\item{mu_g}{Mean of G, only used if type_g = "normal".}
+
+\item{type_g}{Either "binom" or "normal".}
+
+\item{var_e}{Variance of E.}
+
+\item{var_g}{Variance of G, only used if type_g = "normal".}
 }
 \value{
 n x 3 covariate matrix.

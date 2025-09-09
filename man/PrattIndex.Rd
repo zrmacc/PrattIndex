@@ -16,12 +16,13 @@ PrattIndex(y, g, e)
 \value{
 List containing the following:
 \itemize{
-\item{beta: (3 x 1) vector of regression coefficient.}
-\item{pratt: Scalar Pratt index of the interaction term.}
-\item{sigma2: Scalar residual variance from the joint model.}
-\item{var_beta: (3 x 3) sampling variance of the regression coefficients.}
-\item{var_exp: Scalar variance in y explained by x.}
-\item{var_pratt: Scalar sampling variance of the pratt index.}
+\item{beta: (4 x 1) vector of regression coefficients (intercept, G, E, H).}
+\item{kappa: (3 x 1) vector of Pratt indices (G, E, H).}
+\item{grad_kappa: (3 x 3) matrix of Pratt index gradients with respect to beta, column-wise.}
+\item{rho: (3 x 1) vector of correlations (G, E, H).}
+\item{var_beta: (4 x 4) covariance matrix of beta.}
+\item{var_kappa: (3 x 1) vector of Pratt index variances (G, E, H).}
+\item{var_resid: Residual variance from regression of y ~ (intercept, G, E, H).}
 }
 }
 \description{

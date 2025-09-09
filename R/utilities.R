@@ -1,5 +1,5 @@
 # Purpose: Utility functions for Pratt Index
-# Updated: 2025-05-15
+# Updated: 2025-09-09
 
 #' Expected values
 #' 
@@ -33,15 +33,17 @@ Expected <- function(
   
   # Moments of Y.
   mu_y <- mu_g * beta_g + mu_e * beta_e + mu_h * beta_h
-  var_y <- var_g * (beta_g^2) + var_e * (beta_e^2) + var_e * (beta_h^2) + 
+  var_y <- var_g * (beta_g^2) + 
+    var_e * (beta_e^2) + 
+    var_h * (beta_h^2) + 
     2 * (var_g * mu_e) * beta_g * beta_h + 
     2 * (var_e * mu_g) * beta_e * beta_h + 
     var_resid
 
   # Correlations.
-  r_g <- sqrt(var_g) * (beta_g + mu_e * beta_h)
-  r_e <- sqrt(var_e) * (beta_e + mu_g * beta_h)
-  r_h <- (var_g * mu_e * beta_g + var_e * mu_g * beta_e + var_h * beta_h) / sqrt(var_h * var_y)
+  r_yg <- sqrt(var_g / var_y) * (beta_g + mu_e * beta_h)
+  r_ye <- sqrt(var_e / var_y) * (beta_e + mu_g * beta_h)
+  r_yh <- (var_g * mu_e * beta_g + var_e * mu_g * beta_e + var_h * beta_h) / sqrt(var_h * var_y)
   
   # Pratt indices.
   pratt_g <- beta_g * r_g
@@ -52,9 +54,9 @@ Expected <- function(
   out <- list(
     mu_h = mu_h,
     var_h = var_h,
-    r_g = r_g,
-    r_e = r_e,
-    r_h = r_h,
+    r_yg = r_yg,
+    r_ye = r_ye,
+    r_yh = r_yh,
     pratt_g = pratt_g,
     pratt_e = pratt_e,
     pratt_h = pratt_h,

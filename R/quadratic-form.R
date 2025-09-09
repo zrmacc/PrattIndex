@@ -1,28 +1,32 @@
 # Purpose: Functions related to quadratic forms.
-# Updated: 2025-06-15
+# Updated: 2025-09-09
 
 #' Calculate P-value for Quadratic Form
 #' 
-#' Calculate the p-value for a statistic \deqn{T = y^{\top}Ay}, where
-#' \deqn{y ~ N(0, v)} and A is any symmetric positive-definite matrix.
+#' Calculate the p-value for a statistic \deqn{T = z^{\top}Az}, where
+#' \deqn{z ~ N(0, cov_z)} and A is any symmetric positive-definite matrix.
 #'
-#' @param a Central matrix of the quadratic form.
+#' @param cov_z Covariance matrix of the random vector.
+#' @param kernel Central matrix of the quadratic form.
 #' @param test_stat Test statistic.
-#' @param v Variance of the random vector.
 #' @param eps Minimum eigenvalue magnitude.
 #' @param method "davies" or "liu". If "davies", "liu" will provide a fallback.
 #' @return Numeric p-value.
 #' @export
 CalcQuadFormP <- function(
-    a, 
+    cov_z,
+    kernel, 
     test_stat, 
-    v,
     eps = 1e-8,
     method = "davies"
 ) {
   
+  # Ensure symmetric.
+  cov_z <- 0.5 * (cov_z + t(cov_z))
+  kernel <- 0.5 * (kernel + t(kernel))
+  
   # Calculate eigenvalues.
-  s <- a %*% v
+  s <- kernel %*% cov_z
   lambda <- eigen(s, symmetric = FALSE, only.values = TRUE)$values
   lambda <- lambda[abs(lambda) > eps]
   

@@ -5,18 +5,21 @@
 \title{Generate Data}
 \usage{
 GenData(
-  n = 1000,
   beta_g = 0.1,
   beta_e = 0.1,
   beta_h = 0,
   maf = 0.25,
+  mu_g = NULL,
+  mu_e = 0,
+  n = 1000,
+  type_g = "binom",
+  var_e = 1,
   var_exp = 0.25,
+  var_g = NULL,
   var_resid = NULL
 )
 }
 \arguments{
-\item{n}{Sample size.}
-
 \item{beta_g}{Genetic beta.}
 
 \item{beta_e}{Environment beta.}
@@ -25,7 +28,19 @@ GenData(
 
 \item{maf}{Genetic minor allele frequency.}
 
-\item{var_exp}{Proportion of variance explained by main effects.}
+\item{mu_g}{Mean of G, only used if type_g = "normal".}
+
+\item{mu_e}{Mean of E.}
+
+\item{n}{Sample size.}
+
+\item{type_g}{Either "binom" or "normal".}
+
+\item{var_e}{Variance of E.}
+
+\item{var_exp}{Proportion of variance in Y explained by main effects.}
+
+\item{var_g}{Variance of G, only used if type_g = "normal".}
 
 \item{var_resid}{Residual variance. Set to null to specify \code{var_exp} instead.}
 }

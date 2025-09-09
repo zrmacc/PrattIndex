@@ -1,15 +1,32 @@
 # Purpose: Simulate data.
-# Updated: 2025-05-14
+# Updated: 2025-09-09
 
 
 #' Simulate Genotype
 #' 
 #' @param n Sample size.
 #' @param maf Minor allele frequency.
+#' @param mu_g Mean of G. Only used if type_g = "normal".
+#' @param type_g Either "binom" or "normal".
+#' @param var_g Variance of G. Only used if type_g = "normal".
 #' @return Genotype.
 #' @noRd
-.GenGeno <- function(n, maf) {
-  g <- stats::rbinom(n = n, size = 2, prob = maf)
+.GenGeno <- function(
+    n, 
+    maf = 0.25,
+    mu_g = NULL,
+    type_g = "binom",
+    var_g = NULL
+  ) {
+  
+  if (type_g == "binom") {
+    g <- stats::rbinom(n = n, size = 2, prob = maf)
+  } else if (type_g == "normal") {
+    g <- stats::rnorm(n = n, mean = mu_g, sd = sqrt(var_g))
+  } else {
+    stop(glue::glue("G of type {type_g} not implemented."))
+  }
+  
   return(g)
 }
 
@@ -17,10 +34,12 @@
 #' Simulate Environment
 #' 
 #' @param n Sample size.
+#' @param mu_e Mean of E.
+#' @param var_e Variance of E.
 #' @return Environment.
 #' @noRd
-.GenEnv <- function(n) {
-  e <- stats::rnorm(n = n)
+.GenEnv <- function(n, mu_e = 0, var_e = 1) {
+  e <- stats::rnorm(n = n, mean = mu_e, sd = sqrt(var_e))
   return(e)
 }
 
@@ -37,30 +56,41 @@
 }
 
 
-#' Standardize
-#' 
-#' @param x Numeric vector.
-#' @return Standardized vector.
-#' @noRd
-Standardize <- function(x) {
-  out <- x - mean(x)
-  out <- out / sqrt(mean(out^2))
-  return(out)
-}
-
-
 #' Generate Covariates
 #' 
 #' @param n Sample size.
 #' @param maf Minor allele frequency.
+#' @param mu_e Mean of E.
+#' @param mu_g Mean of G, only used if type_g = "normal".
+#' @param type_g Either "binom" or "normal".
+#' @param var_e Variance of E.
+#' @param var_g Variance of G, only used if type_g = "normal".
 #' @return n x 3 covariate matrix.
-GenCovar <- function(n, maf) {
+GenCovar <- function(
+    n, 
+    maf = 0.25,
+    mu_e = 0,
+    mu_g = NULL,
+    type_g = "binom",
+    var_e = 1,
+    var_g = NULL
+) {
   
   # Genotype.
-  g <- .GenGeno(n = n, maf = maf)
+  g <- .GenGeno(
+    n = n, 
+    maf = maf,
+    mu_g = mu_g,
+    type_g = type_g,
+    var_g = var_g
+  )
   
   # Environment.
-  e <- .GenEnv(n = n)
+  e <- .GenEnv(
+    n = n,
+    mu_e = mu_e,
+    var_e = var_e
+  )
   
   # Interaction.
   h <- .GenInt(g, e)
@@ -122,26 +152,44 @@ GenPheno <- function(
 
 #' Generate Data
 #' 
-#' @param n Sample size. 
 #' @param beta_g Genetic beta.
 #' @param beta_e Environment beta.
 #' @param beta_h Interaction beta.
 #' @param maf Genetic minor allele frequency. 
-#' @param var_exp Proportion of variance explained by main effects.
+#' @param mu_e Mean of E.
+#' @param mu_g Mean of G, only used if type_g = "normal".
+#' @param n Sample size. 
+#' @param type_g Either "binom" or "normal".
+#' @param var_e Variance of E.
+#' @param var_exp Proportion of variance in Y explained by main effects.
+#' @param var_g Variance of G, only used if type_g = "normal".
 #' @param var_resid Residual variance. Set to null to specify `var_exp` instead.
 #' @export 
 GenData <- function(
-  n = 1000,  
   beta_g = 0.1,
   beta_e = 0.1,
   beta_h = 0.0,
   maf = 0.25,
+  mu_g = NULL,
+  mu_e = 0,
+  n = 1000,  
+  type_g = "binom",
+  var_e = 1,
   var_exp = 0.25,
+  var_g = NULL,
   var_resid = NULL
 ) {
   
   # Covariates.
-  x <- GenCovar(n = n, maf = maf)
+  x <- GenCovar(
+    maf = maf,
+    n = n, 
+    mu_e = mu_e,
+    mu_g = mu_g,
+    type_g = type_g,
+    var_e = var_e,
+    var_g = var_g
+  )
 
   # Phenotype.
   beta <- c(beta_g, beta_e, beta_h)

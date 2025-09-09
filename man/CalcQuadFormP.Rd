@@ -4,14 +4,14 @@
 \alias{CalcQuadFormP}
 \title{Calculate P-value for Quadratic Form}
 \usage{
-CalcQuadFormP(a, test_stat, v, eps = 1e-08, method = "davies")
+CalcQuadFormP(cov_z, kernel, test_stat, eps = 1e-08, method = "davies")
 }
 \arguments{
-\item{a}{Central matrix of the quadratic form.}
+\item{cov_z}{Covariance matrix of the random vector.}
+
+\item{kernel}{Central matrix of the quadratic form.}
 
 \item{test_stat}{Test statistic.}
-
-\item{v}{Variance of the random vector.}
 
 \item{eps}{Minimum eigenvalue magnitude.}
 
@@ -21,6 +21,6 @@ CalcQuadFormP(a, test_stat, v, eps = 1e-08, method = "davies")
 Numeric p-value.
 }
 \description{
-Calculate the p-value for a statistic \deqn{T = y^{\top}Ay}, where
-\deqn{y ~ N(0, v)} and A is any symmetric positive-definite matrix.
+Calculate the p-value for a statistic \deqn{T = z^{\top}Az}, where
+\deqn{z ~ N(0, cov_z)} and A is any symmetric positive-definite matrix.
 }
