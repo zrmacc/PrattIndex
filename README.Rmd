@@ -4,7 +4,7 @@ output:
 --- 
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(cache = FALSE)
 ```
 
 ## Description
@@ -25,7 +25,7 @@ Y = G\beta_{G} + E\beta_{E} + H\beta_{H} + \epsilon,
 $$
 where $\epsilon$ is normally distributed with mean 0 and variance $\sigma_{\epsilon}^{2}$. 
 
-```{R, cache=TRUE}
+```{R, cache=FALSE}
 set.seed(101)
 data <- PrattIndex::GenData(
   n = 1e3,
@@ -39,11 +39,11 @@ head(data)
 
 ## Calculate the Pratt Index
 
-The function `PrattTest` estimates the p-value, calculates the standard error, and calculates the 1-sided p-value against the null hypothesis $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because `beta_h != 0`.
+The function `PrattTest` estimates the p-value, calculates the standard error, and calculates the 2-sided p-value against the null hypothesis $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because `beta_h != 0`.
 
-```{R, cache=TRUE, results='hold'}
+```{R, cache=FALSE, results='hold'}
 # Run the Pratt index test for interaction.
-result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e)
+result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e, use_score_test = TRUE)
 
 # Here we expect a significant result because beta_h != 0.
 show(result)

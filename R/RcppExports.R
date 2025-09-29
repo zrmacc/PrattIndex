@@ -19,25 +19,23 @@ FitOLS <- function(y, X) {
 }
 
 #' Pratt Index
-#'
-#' Calculate the Pratt index and intermediates.
-#'
-#' @param y (n x 1) Numeric vector.
-#' @param g (n x 1) Genotype vector.
-#' @param e (n x 1) Environment vector.
-#' @return List containing the following:
-#' \itemize{
-#' \item{beta: (4 x 1) vector of regression coefficients (intercept, G, E, H).}
-#' \item{kappa: (3 x 1) vector of Pratt indices (G, E, H).}
-#' \item{grad_kappa: (3 x 3) matrix of Pratt index gradients with respect to beta, column-wise.}
-#' \item{rho: (3 x 1) vector of correlations (G, E, H).}
-#' \item{var_beta: (4 x 4) covariance matrix of beta.}
-#' \item{var_kappa: (3 x 1) vector of Pratt index variances (G, E, H).}
-#' \item{var_resid: Residual variance from regression of y ~ (intercept, G, E, H).}
-#' }
-#' @export
-PrattIndex <- function(y, g, e) {
-    .Call(`_PrattIndex_PrattIndex`, y, g, e)
+#' 
+#' @param y (n x 1) numeric
+#' @param g (n x 1) numeric
+#' @param e (n x 1) numeric
+#' @return List containing:
+#'   * beta: Regression coefficients (b_G, b_E, b_H) from the joint model.
+#'   * beta_null: Regression coefficient (b_G, b_E) from the model that omits H.
+#'   * cov_xx: Covariance matrix of (G, E, H).
+#'   * kappa: Pratt index
+#'   * grad_kappa: Gradient of kappa with respect to beta.
+#'   * var_beta: Covariance matrix of beta.
+#'   * var_beta_null: covariance matrix of beta from the model that omits H.
+#'   * var_kappa: Variance of Pratt indices.
+#'   * var_resid: Residual variance from the model that includes H.
+#'   * var_resid_null: Residual variance from the model the omits H.
+PrattIndexCpp <- function(y, g, e) {
+    .Call(`_PrattIndex_PrattIndexCpp`, y, g, e)
 }
 
 #' Matrix Square Root

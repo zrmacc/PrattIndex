@@ -23,16 +23,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// PrattIndex
-SEXP PrattIndex(arma::colvec y, arma::colvec g, arma::colvec e);
-RcppExport SEXP _PrattIndex_PrattIndex(SEXP ySEXP, SEXP gSEXP, SEXP eSEXP) {
+// PrattIndexCpp
+SEXP PrattIndexCpp(arma::colvec y, arma::colvec g, arma::colvec e);
+RcppExport SEXP _PrattIndex_PrattIndexCpp(SEXP ySEXP, SEXP gSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::colvec >::type g(gSEXP);
     Rcpp::traits::input_parameter< arma::colvec >::type e(eSEXP);
-    rcpp_result_gen = Rcpp::wrap(PrattIndex(y, g, e));
+    rcpp_result_gen = Rcpp::wrap(PrattIndexCpp(y, g, e));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -51,7 +51,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_PrattIndex_FitOLS", (DL_FUNC) &_PrattIndex_FitOLS, 2},
-    {"_PrattIndex_PrattIndex", (DL_FUNC) &_PrattIndex_PrattIndex, 3},
+    {"_PrattIndex_PrattIndexCpp", (DL_FUNC) &_PrattIndex_PrattIndexCpp, 3},
     {"_PrattIndex_MatrixSqrt", (DL_FUNC) &_PrattIndex_MatrixSqrt, 2},
     {NULL, NULL, 0}
 };

@@ -11,13 +11,13 @@ GenPheno(beta, x, var_exp, var_resid = NULL)
 
 \item{x}{n x 3 covariate data.frame.}
 
-\item{var_exp}{Proportion of variance explained by main effects.}
+\item{var_exp}{Proportion of variance explained by (G, E, H).}
 
-\item{var_resid}{Residual variance explained. Set to null to specify \code{var_exp} instead.}
+\item{var_resid}{Residual variance Set to null to specify \code{var_exp} instead.}
 }
 \value{
 n x 1 phenotype vector.
 }
 \description{
-Uses the centered g and e to form the interaction.
+Generate Phenotype
 }

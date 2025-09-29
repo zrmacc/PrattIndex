@@ -13,13 +13,9 @@ remotes::install_github("zrmacc/PrattIndex", build_vignettes = TRUE)
 
 Simulates data with a phenotype $Y$ that depends on 3 factors: genotype
 $G$, environment $E$, and the gene-by-environment interaction
-$H = G \times E$. The phenotype is generated from the model: 
-
-$$
+$H = G \times E$. The phenotype is generated from the model: $$
 Y = G\beta_{G} + E\beta_{E} + H\beta_{H} + \epsilon,
-$$ 
-
-where $\epsilon$ is normally distributed with mean 0 and variance
+$$ where $\epsilon$ is normally distributed with mean 0 and variance
 $\sigma_{\epsilon}^{2}$.
 
 ``` r
@@ -51,11 +47,11 @@ $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because
 
 ``` r
 # Run the Pratt index test for interaction.
-result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e)
+result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e, use_score_test = TRUE)
 
 # Here we expect a significant result because beta_h != 0.
 show(result)
 ```
 
-    ##       pratt   se_pratt     lower     upper         pval
-    ## 1 0.2326211 0.01151283 0.2100564 0.2551859 4.389066e-91
+    ##   term method     kappa         se    chisq         pval
+    ## 1    H  Score 0.1693793 0.01196251 200.4823 1.639005e-45

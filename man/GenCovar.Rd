@@ -9,6 +9,9 @@ GenCovar(
   maf = 0.25,
   mu_e = 0,
   mu_g = NULL,
+  n_e = NULL,
+  p_e = NULL,
+  type_e = "normal",
   type_g = "binom",
   var_e = 1,
   var_g = NULL
@@ -17,17 +20,23 @@ GenCovar(
 \arguments{
 \item{n}{Sample size.}
 
-\item{maf}{Minor allele frequency.}
+\item{maf}{Minor allele frequency for G, if type_g = "binom".}
 
-\item{mu_e}{Mean of E.}
+\item{mu_e}{Mean of E, if type_e = "normal".}
 
-\item{mu_g}{Mean of G, only used if type_g = "normal".}
+\item{mu_g}{Mean of G, if type_g = "normal".}
+
+\item{n_e}{Number of trials for E, if type_e = "binom".}
+
+\item{p_e}{Probability of success for E, if type_e = "binom".}
+
+\item{type_e}{Either "binom" or "normal".}
 
 \item{type_g}{Either "binom" or "normal".}
 
-\item{var_e}{Variance of E.}
+\item{var_e}{Variance of E, if type_e = "normal".}
 
-\item{var_g}{Variance of G, only used if type_g = "normal".}
+\item{var_g}{Variance of G, if type_g = "normal".}
 }
 \value{
 n x 3 covariate matrix.
