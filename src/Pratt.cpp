@@ -72,6 +72,7 @@ SEXP PrattIndexCpp(arma::colvec y, arma::colvec g, arma::colvec e) {
   
   // Covariance ---------------------------------------------------------------
   const arma::mat cov_xx = arma::cov(X2);
+  const arma::mat cov_xx_inv = arma::pinv(cov_xx);
   const arma::vec cov_yx = cov_xx * beta; 
   const double var_y = arma::as_scalar(beta.t() * cov_yx) + var_resid;
   
@@ -100,6 +101,7 @@ SEXP PrattIndexCpp(arma::colvec y, arma::colvec g, arma::colvec e) {
    Rcpp::Named("beta") = beta,
    Rcpp::Named("beta_null") = arma::colvec(ols_without_h.beta.subvec(1, 2)),
    Rcpp::Named("cov_xx") = cov_xx,
+   Rcpp::Named("cov_xx_inv") = cov_xx_inv,
    Rcpp::Named("kappa") = kappa,
    Rcpp::Named("grad_kappa") = grad_kappa,
    Rcpp::Named("n") = n,

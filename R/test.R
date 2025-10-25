@@ -107,3 +107,48 @@ PrattTest <- function(y, g, e, use_score_test = TRUE) {
   return(out)
 }
 
+
+#' Second Order Pratt Test
+#' 
+#' Performs the Pratt test for the interaction between G and E.
+#' 
+#' @param y Phenotype.
+#' @param g Genotype.
+#' @param e Environment.
+#' @return Data.frame of results.
+#' @export 
+SecPrattTest <- function(y, g, e) {
+  
+  # Pratt components.
+  results <- PrattIndex(y = y, g = g, e = e)
+
+  # Test statistic.
+  n <- length(y)
+  kappa_h <- results$kappa[3]
+  test_stat <- n * kappa_h
+  
+  # Calculate eigenvalues.
+  cov_xx <- results$cov_xx
+  cov_xx_inv <- solve(cov_xx)
+  lambda1 <- 0.5 * (1 + sqrt(cov_xx[3, 3] * cov_xx_inv[3, 3]))
+  lambda2 <- 0.5 * (1 - sqrt(cov_xx[3, 3] * cov_xx_inv[3, 3]))
+  
+  # Calculate p-value.
+  pval <- CompQuadForm::davies(
+    q = test_stat,
+    lambda = c(lambda1, lambda2)
+  )$Qq
+  
+  # Output.
+  out <- data.frame(
+    term = "H",
+    method = "MixChi2",
+    kappa = kappa_h,
+    test_stat = test_stat,
+    lambda1 = lambda1,
+    lambda2 = lambda2,
+    pval = pval
+  )
+  return(out)
+}
+
