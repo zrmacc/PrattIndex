@@ -7,17 +7,13 @@
 FitOLS(y, X)
 }
 \arguments{
-\item{y}{n x 1 Numeric vector.}
+\item{y}{n x 1 numeric vector.}
 
-\item{X}{n x p Numeric matrix.}
+\item{X}{n x p numeric matrix.}
 }
 \value{
-List containing the following:
-\item{Beta}{Regression coefficient.}
-\item{V}{Outcome variance.}
-\item{Ibb}{Information matrix for beta.}
-\item{Resid}{Outcome residuals.}
+List with \code{beta}, \code{resid_var}, \code{var_beta}.
 }
 \description{
-Fits the standard OLS model.
+Ordinary Least Squares
 }

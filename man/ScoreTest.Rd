@@ -4,7 +4,7 @@
 \alias{ScoreTest}
 \title{Score Test}
 \usage{
-ScoreTest(beta_null, cov_xx, kappa_h, n, var_resid_null)
+ScoreTest(beta_null, cov_xx, kappa_h, n, var_resid_null, var_y)
 }
 \arguments{
 \item{beta_null}{Estimate of (b_G, b_E) from the model that omits H.}
@@ -16,6 +16,8 @@ ScoreTest(beta_null, cov_xx, kappa_h, n, var_resid_null)
 \item{n}{Sample size.}
 
 \item{var_resid_null}{Estimate of residual variance from the model that omits H.}
+
+\item{var_y}{Marginal variance of Y.}
 }
 \description{
 Score Test

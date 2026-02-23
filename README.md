@@ -38,10 +38,10 @@ head(data)
     ## 5 0 -0.02617408  0.0000000  0.11470254
     ## 6 0  0.25972722  0.0000000 -2.18571720
 
-## Calculate the Pratt Index
+## Pratt test from individual-level data
 
 The function `PrattTest` estimates the p-value, calculates the standard
-error, and calculates the 1-sided p-value against the null hypothesis
+error, and calculates the 2-sided p-value against the null hypothesis
 $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because
 `beta_h != 0`.
 
@@ -54,4 +54,50 @@ show(result)
 ```
 
     ##   term method     kappa         se    chisq         pval
-    ## 1    H  Score 0.1693793 0.01196251 200.4823 1.639005e-45
+    ## 1    H  Score 0.1695818 0.01197316 200.6047 1.541216e-45
+
+## Pratt test from summary statistics
+
+`PrattTestSS` performs the 2-sided test of $H_{0}: \kappa_{H} = 0$
+starting from summary statistics. The required inputs are:
+
+1.  The joint-model coefficients $\hat{\beta}_G$, $\hat{\beta}_E$,
+    $\hat{\beta}_H$.
+2.  The minor allele frequency of the variant $G$.
+3.  The mean and variance of the environment $E$.
+4.  The marginal variance of $Y$.
+
+In order to minimize the number of inputs required, `PrattTestSS` makes
+the assumption that $G$ and $E$ are independent. Note that the test
+starting from individual-level data does not assume $G \perp E$, which
+accounts for the numeric discrepancy.
+
+``` r
+# 1. Fit joint model and extract coefficients
+fit <- lm(y ~ g + e + I(g * e), data = data)
+bg  <- unname(coef(fit)["g"])
+be  <- unname(coef(fit)["e"])
+bh  <- unname(coef(fit)["I(g * e)"])
+
+# 2. Summary statistics required by PrattTestSS
+var_y  <- var(data$y)
+maf    <- mean(data$g) / 2
+mean_e <- mean(data$e)
+var_e  <- var(data$e)
+
+# 3. Run the test from summary statistics
+result_ss <- PrattIndex::PrattTestSS(
+  n = nrow(data),
+  bg = bg,
+  be = be,
+  bh = bh,
+  maf = maf,
+  mean_e = mean_e,
+  var_e = var_e,
+  var_y = var_y
+)
+show(result_ss)
+```
+
+    ##   term method     kappa         se    chisq         pval
+    ## 1    H  Score 0.1629577 0.01205436 182.7516 1.215244e-41

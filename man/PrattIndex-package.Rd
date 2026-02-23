@@ -14,8 +14,4 @@ Useful links:
 }
 
 }
-\author{
-\strong{Maintainer}: Zachary McCaw \email{zmccaw@alumni.harvard.edu} (\href{https://orcid.org/0000-0002-2006-9828}{ORCID})
-
-}
 \keyword{internal}

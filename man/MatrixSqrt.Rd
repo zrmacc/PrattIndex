@@ -7,9 +7,9 @@
 MatrixSqrt(S, eps = 1e-08)
 }
 \arguments{
-\item{S}{(p x p) numeric matrix.}
+\item{S}{(p x p) symmetric numeric matrix.}
 
-\item{eps}{Scalar minimum eigenvalue.}
+\item{eps}{Minimum eigenvalue threshold (smaller non-negative eigenvalues set to 0).}
 }
 \description{
 Matrix Square Root

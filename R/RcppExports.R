@@ -2,18 +2,9 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' Ordinary Least Squares
-#' 
-#' Fits the standard OLS model.
-#' 
-#' @param y n x 1 Numeric vector.
-#' @param X n x p Numeric matrix.
-#' 
-#' @return List containing the following:
-#' \item{Beta}{Regression coefficient.}
-#' \item{V}{Outcome variance.}
-#' \item{Ibb}{Information matrix for beta.}
-#' \item{Resid}{Outcome residuals.}
-#' @export
+#' @param y n x 1 numeric vector.
+#' @param X n x p numeric matrix.
+#' @return List with \code{beta}, \code{resid_var}, \code{var_beta}.
 FitOLS <- function(y, X) {
     .Call(`_PrattIndex_FitOLS`, y, X)
 }
@@ -38,10 +29,22 @@ PrattIndexCpp <- function(y, g, e) {
     .Call(`_PrattIndex_PrattIndexCpp`, y, g, e)
 }
 
+#' Pratt Index Influence Function
+#' 
+#' Computes the plug-in influence function for the Pratt index components
+#' corresponding to X = (G, E, H) with H = G * E.
+#'
+#' @param y (n x 1) numeric
+#' @param g (n x 1) numeric
+#' @param e (n x 1) numeric
+#' @return (n x 3) numeric matrix psi, where psi.row(i) is IF_kappa for obs i.
+PrattInfluenceCpp <- function(y, g, e) {
+    .Call(`_PrattIndex_PrattInfluenceCpp`, y, g, e)
+}
+
 #' Matrix Square Root
-#' @param S (p x p) numeric matrix. 
-#' @param eps Scalar minimum eigenvalue.
-#' @export
+#' @param S (p x p) symmetric numeric matrix.
+#' @param eps Minimum eigenvalue threshold (smaller non-negative eigenvalues set to 0).
 MatrixSqrt <- function(S, eps = 1e-8) {
     .Call(`_PrattIndex_MatrixSqrt`, S, eps)
 }

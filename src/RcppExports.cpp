@@ -12,27 +12,40 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // FitOLS
-SEXP FitOLS(const arma::colvec y, const arma::mat X);
+SEXP FitOLS(const arma::colvec& y, const arma::mat& X);
 RcppExport SEXP _PrattIndex_FitOLS(SEXP ySEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(FitOLS(y, X));
     return rcpp_result_gen;
 END_RCPP
 }
 // PrattIndexCpp
-SEXP PrattIndexCpp(arma::colvec y, arma::colvec g, arma::colvec e);
+SEXP PrattIndexCpp(const arma::colvec& y, const arma::colvec& g, const arma::colvec& e);
 RcppExport SEXP _PrattIndex_PrattIndexCpp(SEXP ySEXP, SEXP gSEXP, SEXP eSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::colvec >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type g(gSEXP);
-    Rcpp::traits::input_parameter< arma::colvec >::type e(eSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type g(gSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type e(eSEXP);
     rcpp_result_gen = Rcpp::wrap(PrattIndexCpp(y, g, e));
+    return rcpp_result_gen;
+END_RCPP
+}
+// PrattInfluenceCpp
+SEXP PrattInfluenceCpp(const arma::colvec& y, const arma::colvec& g, const arma::colvec& e);
+RcppExport SEXP _PrattIndex_PrattInfluenceCpp(SEXP ySEXP, SEXP gSEXP, SEXP eSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type g(gSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type e(eSEXP);
+    rcpp_result_gen = Rcpp::wrap(PrattInfluenceCpp(y, g, e));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -52,6 +65,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_PrattIndex_FitOLS", (DL_FUNC) &_PrattIndex_FitOLS, 2},
     {"_PrattIndex_PrattIndexCpp", (DL_FUNC) &_PrattIndex_PrattIndexCpp, 3},
+    {"_PrattIndex_PrattInfluenceCpp", (DL_FUNC) &_PrattIndex_PrattInfluenceCpp, 3},
     {"_PrattIndex_MatrixSqrt", (DL_FUNC) &_PrattIndex_MatrixSqrt, 2},
     {NULL, NULL, 0}
 };
