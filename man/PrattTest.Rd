@@ -4,7 +4,7 @@
 \alias{PrattTest}
 \title{Pratt Test}
 \usage{
-PrattTest(y, g, e, use_score_test = TRUE)
+PrattTest(y, g, e, use_score_test = TRUE, tau_cyh = 0.02)
 }
 \arguments{
 \item{y}{Phenotype.}
@@ -14,6 +14,9 @@ PrattTest(y, g, e, use_score_test = TRUE)
 \item{e}{Environment.}
 
 \item{use_score_test}{Logical.}
+
+\item{tau_cyh}{Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
+the p-value is set to NA. Only applies when use_score_test = TRUE.}
 }
 \value{
 Data.frame of results.

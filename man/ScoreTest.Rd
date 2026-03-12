@@ -4,7 +4,7 @@
 \alias{ScoreTest}
 \title{Score Test}
 \usage{
-ScoreTest(beta_null, cov_xx, kappa_h, n, var_resid_null, var_y)
+ScoreTest(beta_null, cov_xx, kappa_h, n, var_resid_null, var_y, tau_cyh = 0.02)
 }
 \arguments{
 \item{beta_null}{Estimate of (b_G, b_E) from the model that omits H.}
@@ -18,6 +18,8 @@ ScoreTest(beta_null, cov_xx, kappa_h, n, var_resid_null, var_y)
 \item{var_resid_null}{Estimate of residual variance from the model that omits H.}
 
 \item{var_y}{Marginal variance of Y.}
+
+\item{tau_cyh}{Threshold for cyh. If |cyh| < tau_cyh, the p-value is set to NA.}
 }
 \description{
 Score Test

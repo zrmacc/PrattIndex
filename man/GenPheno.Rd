@@ -4,16 +4,20 @@
 \alias{GenPheno}
 \title{Generate Phenotype}
 \usage{
-GenPheno(beta, x, var_exp, var_resid = NULL)
+GenPheno(beta, x, var_exp, var_resid = NULL, type_y = "quant")
 }
 \arguments{
 \item{beta}{3 x 1 beta vector for the joint model.}
 
 \item{x}{n x 3 covariate data.frame.}
 
-\item{var_exp}{Proportion of variance explained by (G, E, H).}
+\item{var_exp}{Proportion of variance explained by (G, E, H). For type_y =
+"binary", this refers to the proportion of latent variation explained.}
 
-\item{var_resid}{Residual variance Set to null to specify \code{var_exp} instead.}
+\item{var_resid}{Residual variance. Set to null to specify \code{var_exp} instead.}
+
+\item{type_y}{Either "quant" for continuous phenotype or "binary" for binary
+phenotype generated via probit model.}
 }
 \value{
 n x 1 phenotype vector.

@@ -4,7 +4,7 @@
 \alias{PrattTestSS}
 \title{Null-calibrated Pratt index test from summary statistics}
 \usage{
-PrattTestSS(n, bg, be, bh, var_y, maf, mean_e, var_e)
+PrattTestSS(n, bg, be, bh, var_y, maf, mean_e, var_e, tau_cyh = 0.02)
 }
 \arguments{
 \item{n}{Sample size.}
@@ -22,10 +22,13 @@ PrattTestSS(n, bg, be, bh, var_y, maf, mean_e, var_e)
 \item{mean_e}{Marginal mean of E.}
 
 \item{var_e}{Marginal variance of E.}
+
+\item{tau_cyh}{Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
+the p-value is set to NA because the chi-square approximation is unreliable.}
 }
 \value{
 Data.frame with \code{term}, \code{method}, \code{kappa} (Pratt index
-for H), \code{se}, \code{chisq}, and \code{pval}.
+for H), \code{se}, \code{chisq}, \code{pval}, and \code{cyh}.
 }
 \description{
 Performs the null-calibrated (score) test for the interaction Pratt index

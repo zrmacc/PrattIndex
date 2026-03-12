@@ -1,0 +1,11 @@
+^PrattIndex\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+README
+^src/.*\.o$
+^src/.*\.so$
+^src/.*\.dll$
+^src/symbols\.rds$
+^\\.Rcheck$
+^\\.Rhistory$
+^\.DS_Store$

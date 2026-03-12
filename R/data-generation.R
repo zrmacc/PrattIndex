@@ -144,91 +144,112 @@ GenCovar <- function(
 
 
 #' Generate Phenotype
-#' 
+#'
 #' @param beta 3 x 1 beta vector for the joint model.
-#' @param x n x 3 covariate data.frame. 
-#' @param var_exp Proportion of variance explained by (G, E, H).
-#' @param var_resid Residual variance Set to null to specify `var_exp` instead.
+#' @param x n x 3 covariate data.frame.
+#' @param var_exp Proportion of variance explained by (G, E, H). For type_y =
+#'   "binary", this refers to the proportion of latent variation explained.
+#' @param var_resid Residual variance. Set to null to specify `var_exp` instead.
+#' @param type_y Either "quant" for continuous phenotype or "binary" for binary
+#'   phenotype generated via probit model.
 #' @return n x 1 phenotype vector.
 GenPheno <- function(
-    beta, 
+    beta,
     x,
     var_exp,
-    var_resid = NULL
+    var_resid = NULL,
+    type_y = "quant"
 ) {
-  
+
   if (is.null(var_resid)) {
     # Generate covariance matrix.
     S <- stats::cov(x)
-    
+
     # Calculate variance of main effect.
     main_var <- as.numeric(t(beta) %*% S %*% beta)
-    
+
     # Calculate residual variance.
     sigma2 <- (main_var - var_exp * main_var) / var_exp
-    
+
   } else {
-    
+
     sigma2 <- var_resid
-    
+
   }
 
   # Linear predictor.
   eta <- as.numeric(data.matrix(x) %*% beta)
-  
+
   # Residuals.
   n <- length(eta)
-  eps <- sqrt(sigma2) * stats::rnorm(n) 
-  
+  eps <- sqrt(sigma2) * stats::rnorm(n)
+
   # Phenotype.
-  y <- eta + eps
+  if (type_y == "quant") {
+    y <- eta + eps
+  } else if (type_y == "binary") {
+    z <- eta + eps
+    y <- as.integer(z > 0)
+  } else {
+    stop(glue::glue("type_y '{type_y}' not implemented."))
+  }
+
   return(y)
 }
 
 
 #' Generate Data
-#' 
-#' Simulates a data set containing the phenotype, genotype, environment, and 
+#'
+#' Simulates a data set containing the phenotype, genotype, environment, and
 #' interaction. Genotype can be either binomial or normal. If binomial, specify the
 #' minor allele frequency. If normal, specify mu_g and var_g. Likewise, environment
 #' can be binomial or normal. If binomial, specify n_e and p_e. If normal, specify
 #' mu_e and var_e. The residual phenotypic variance can either be specified directly,
 #' or it can be inferred by specifying the variance explained by (G, E, H).
-#' 
+#'
+#' The phenotype can be continuous (type_y = "quant") or binary (type_y = "binary").
+#' For binary phenotypes, a probit model is used: Y = 1{eta + eps > 0} where
+#' eta = X * beta and eps ~ N(0, sigma^2). In this case, var_exp refers to the
+#' proportion of latent variation explained by (G, E, H).
+#'
 #' @param beta_g Genetic beta.
 #' @param beta_e Environment beta.
 #' @param beta_h Interaction beta.
-#' @param maf Minor allele frequency for G, if type_g = "binom". 
+#' @param maf Minor allele frequency for G, if type_g = "binom".
 #' @param mu_e Mean of E, if type_e = "normal".
 #' @param mu_g Mean of G, if type_g = "normal".
-#' @param n Sample size. 
+#' @param n Sample size.
 #' @param n_e Number of trials for E, if type_e = "binom".
 #' @param p_e Probability of success for E, if type_e = "binom".
 #' @param type_e Either "binom" or "normal".
 #' @param type_g Either "binom" or "normal".
+#' @param type_y Either "quant" for continuous phenotype or "binary" for binary
+#'   phenotype generated via probit model.
 #' @param var_e Variance of E, if type_e = "normal".
-#' @param var_exp Proportion of variance in Y explained by (G, E, H).
+#' @param var_exp Proportion of variance in Y explained by (G, E, H). For binary
+#'   phenotypes, this refers to the proportion of latent variation explained.
 #' @param var_g Variance of G, if type_g = "normal".
 #' @param var_resid Residual variance. Set to null to specify `var_exp` instead.
-#' @export 
+#' @export
 GenData <- function(
-  beta_g = 0.1,
-  beta_e = 0.1,
-  beta_h = 0.0,
-  maf = 0.25,
-  mu_g = NULL,
-  mu_e = 0,
-  n = 1000,
-  n_e = NULL,
-  p_e = NULL,
-  type_e = "normal",
-  type_g = "binom",
-  var_e = 1,
-  var_exp = 0.25,
-  var_g = NULL,
-  var_resid = NULL
+    beta_g = 0.1,
+    beta_e = 0.1,
+    beta_h = 0.0,
+    maf = 0.25,
+    mu_g = NULL,
+    mu_e = 0,
+    n = 1000,
+    n_e = NULL,
+    p_e = NULL,
+    type_e = "normal",
+    type_g = "binom",
+    type_y = "quant",
+    var_e = 1,
+    var_exp = 0.25,
+    var_g = NULL,
+    var_resid = NULL
 ) {
-  
+
   # Covariates.
   x <- GenCovar(
     n = n,
@@ -246,12 +267,13 @@ GenData <- function(
   # Phenotype.
   beta <- c(beta_g, beta_e, beta_h)
   y <- GenPheno(
-    beta = beta, 
+    beta = beta,
     x = x,
     var_exp = var_exp,
-    var_resid = var_resid
+    var_resid = var_resid,
+    type_y = type_y
   )
-  
+
   # Output.
   out <- x
   out$y <- y

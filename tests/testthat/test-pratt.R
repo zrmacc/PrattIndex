@@ -24,12 +24,34 @@ test_that("PrattTest returns data.frame with expected columns", {
   out_score <- PrattTest(df$y, df$g, df$e, use_score_test = TRUE)
   out_wald <- PrattTest(df$y, df$g, df$e, use_score_test = FALSE)
   expect_s3_class(out_score, "data.frame")
-  expect_named(out_score, c("term", "method", "kappa", "se", "chisq", "pval"))
+  expect_named(out_score, c("term", "method", "kappa", "se", "cyh", "chisq", "pval"))
   expect_equal(out_score$term, "H")
   expect_equal(out_score$method, "Score")
   expect_equal(out_wald$method, "Wald")
   expect_true(out_score$se > 0)
-  expect_true(out_score$pval >= 0 && out_score$pval <= 1)
+  expect_true(is.numeric(out_score$cyh))
+  expect_true(is.numeric(out_wald$cyh))
+})
+
+test_that("PrattTest applies tau_cyh threshold", {
+  set.seed(21)
+  df <- GenData(n = 5000, beta_g = 0, beta_e = 0.2, beta_h = 0, mu_e = 3)
+  out_default <- PrattTest(df$y, df$g, df$e, tau_cyh = 0.02)
+  out_strict <- PrattTest(df$y, df$g, df$e, tau_cyh = 1.0)
+  out_none <- PrattTest(df$y, df$g, df$e, tau_cyh = 0)
+  expect_true(is.numeric(out_default$cyh))
+  if (abs(out_strict$cyh) < 1.0) {
+    expect_true(is.na(out_strict$pval))
+  }
+  expect_false(is.na(out_none$pval))
+})
+
+test_that("PrattTest Wald test reports cyh but ignores tau_cyh", {
+  set.seed(22)
+  df <- GenData(n = 5000, beta_g = 0, beta_e = 0.2, beta_h = 0, mu_e = 3)
+  out_wald_strict <- PrattTest(df$y, df$g, df$e, use_score_test = FALSE, tau_cyh = 1.0)
+  expect_true(is.numeric(out_wald_strict$cyh))
+  expect_false(is.na(out_wald_strict$pval))
 })
 
 test_that("PrattTest under null gives kappa_H near zero", {
@@ -50,10 +72,11 @@ test_that("PrattTestSS returns expected structure", {
     var_y = 2, maf = 0.3, mean_e = 0, var_e = 1
   )
   expect_s3_class(out, "data.frame")
-  expect_named(out, c("term", "method", "kappa", "se", "chisq", "pval"))
+  expect_named(out, c("term", "method", "kappa", "se", "chisq", "pval", "cyh"))
   expect_equal(out$term, "H")
   expect_equal(out$method, "Score")
   expect_equal(nrow(out), 1L)
+  expect_true(is.numeric(out$cyh))
 })
 
 test_that("PrattTestSS with bh=0 gives kappa=0", {
@@ -82,6 +105,35 @@ test_that("PrattTestSS kappa_H matches PrattIndex from same data", {
   )
   # Summary-statistic kappa_H matches full-data (sample vs population moments => relax tolerance)
   expect_true(isTRUE(all.equal(out_ss$kappa, kappa_h_full, tolerance = 0.02)))
+})
+
+test_that("PrattTestSS applies tau_cyh threshold", {
+  # Small cyh scenario: small beta_e with small mean_e.
+  out_small_cyh <- PrattTestSS(
+    n = 100000, bg = 0, be = 0.001, bh = 0,
+    var_y = 1, maf = 0.3, mean_e = 0.01, var_e = 1,
+    tau_cyh = 0.02
+  )
+  expect_true(abs(out_small_cyh$cyh) < 0.02)
+  expect_true(is.na(out_small_cyh$pval))
+
+  # Large cyh scenario: larger beta_e.
+  out_large_cyh <- PrattTestSS(
+    n = 100000, bg = 0, be = 0.2, bh = 0,
+    var_y = 1, maf = 0.3, mean_e = 3, var_e = 1,
+    tau_cyh = 0.02
+  )
+  expect_true(abs(out_large_cyh$cyh) > 0.02)
+  expect_false(is.na(out_large_cyh$pval))
+})
+
+test_that("PrattTestSS with tau_cyh = 0 never returns NA pval", {
+  out <- PrattTestSS(
+    n = 100000, bg = 0, be = 0.001, bh = 0,
+    var_y = 1, maf = 0.3, mean_e = 0.01, var_e = 1,
+    tau_cyh = 0
+  )
+  expect_false(is.na(out$pval))
 })
 
 # ------------------------------------------------------------------------------
@@ -158,6 +210,37 @@ test_that("GenData is reproducible with set.seed", {
   a <- GenData(n = 50, beta_h = 0)
   set.seed(9)
   b <- GenData(n = 50, beta_h = 0)
+  expect_equal(a$y, b$y)
+  expect_equal(a$g, b$g)
+  expect_equal(a$e, b$e)
+})
+
+test_that("GenData with type_y = 'quant' returns continuous y", {
+  set.seed(11)
+  df <- GenData(n = 100, beta_h = 0, type_y = "quant", var_resid = 1)
+  expect_true(is.numeric(df$y))
+  expect_false(all(df$y %in% c(0, 1)))
+})
+
+test_that("GenData with type_y = 'binary' returns y in {0, 1}", {
+  set.seed(12)
+  df <- GenData(n = 500, beta_g = 0.1, beta_e = 0.2, beta_h = 0, type_y = "binary", var_resid = 1)
+  expect_true(all(df$y %in% c(0L, 1L)))
+  expect_true(is.integer(df$y))
+})
+
+test_that("GenData with type_y = 'binary' has reasonable prevalence", {
+  set.seed(13)
+  df <- GenData(n = 1000, beta_g = 0, beta_e = 0, beta_h = 0, type_y = "binary", var_resid = 1)
+  prev <- mean(df$y)
+  expect_true(prev > 0.1 && prev < 0.9)
+})
+
+test_that("GenData with type_y = 'binary' is reproducible with set.seed", {
+  set.seed(14)
+  a <- GenData(n = 100, beta_h = 0, type_y = "binary")
+  set.seed(14)
+  b <- GenData(n = 100, beta_h = 0, type_y = "binary")
   expect_equal(a$y, b$y)
   expect_equal(a$g, b$g)
   expect_equal(a$e, b$e)

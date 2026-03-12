@@ -36,13 +36,15 @@ PrattIndex <- function(y, g, e) {
 #' @param n Sample size.
 #' @param var_resid_null Estimate of residual variance from the model that omits H.
 #' @param var_y Marginal variance of Y.
+#' @param tau_cyh Threshold for cyh. If |cyh| < tau_cyh, the p-value is set to NA.
 ScoreTest <- function(
     beta_null, 
     cov_xx,
     kappa_h, 
     n,
     var_resid_null,
-    var_y
+    var_y,
+    tau_cyh = 0.02
 ) {
 
   # Schur complement.
@@ -51,16 +53,18 @@ ScoreTest <- function(
   )
   
   # Pratt variance.
-  c0 <- as.numeric(cov_xx[3, 1:2] %*% beta_null)
+  # cyh = Cov(Y, H) under the null = sigma_GH * beta_G_null + sigma_EH * beta_E_null
+  cyh <- as.numeric(cov_xx[3, 1:2] %*% beta_null)
   var_beta_h_null <- var_resid_null / (n * cov_h_given_ge)
-  var_kappa_null <- (c0 / var_y)^2 * var_beta_h_null
+  var_kappa_null <- (cyh / var_y)^2 * var_beta_h_null
     
   # Output.
   out <- data.frame(
     term = "H",
     method = "Score",
     kappa = kappa_h,
-    se = sqrt(var_kappa_null)
+    se = sqrt(var_kappa_null),
+    cyh = cyh
   )
   return(out)
 }
@@ -74,12 +78,17 @@ ScoreTest <- function(
 #' @param g Genotype.
 #' @param e Environment.
 #' @param use_score_test Logical.
+#' @param tau_cyh Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
+#'   the p-value is set to NA. Only applies when use_score_test = TRUE.
 #' @return Data.frame of results.
 #' @export 
-PrattTest <- function(y, g, e, use_score_test = TRUE) {
+PrattTest <- function(y, g, e, use_score_test = TRUE, tau_cyh = 0.02) {
   
   # Pratt components.
   results <- PrattIndex(y = y, g = g, e = e)
+  
+  # Compute cyh = Cov(Y, H) under the null for diagnostics.
+  cyh <- as.numeric(results$cov_xx[3, 1:2] %*% results$beta_null)
   
   if (use_score_test) {
     out <- ScoreTest(
@@ -88,20 +97,28 @@ PrattTest <- function(y, g, e, use_score_test = TRUE) {
       kappa_h = results$kappa[3],
       n = results$n,
       var_resid_null = results$var_resid_null,
-      var_y = results$var_y
+      var_y = results$var_y,
+      tau_cyh = tau_cyh
     )
   } else {
     out <- data.frame(
       term = "H",
       method = "Wald",
       kappa = results$kappa[3],
-      se = sqrt(results$var_kappa[3])
+      se = sqrt(results$var_kappa[3]),
+      cyh = cyh
     )
   }
   
   # Finalize test results.
   out$chisq <- (out$kappa / out$se)^2
   out$pval <- stats::pchisq(q = out$chisq, df = 1, lower.tail = FALSE)
+  
+  # Apply cyh threshold: if |cyh| < tau_cyh, p-value is unreliable (score test only).
+  if (use_score_test && abs(out$cyh) < tau_cyh) {
+    out$pval <- NA_real_
+  }
+  
   return(out)
 }
 
@@ -308,10 +325,22 @@ PrattIFTestSS <- function(n, bg, be, bh, var_y, maf, mean_e, var_e) {
 #' @param maf Minor allele frequency of G (additive coding 0, 1, 2 assumed).
 #' @param mean_e Marginal mean of E.
 #' @param var_e Marginal variance of E.
+#' @param tau_cyh Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
+#'   the p-value is set to NA because the chi-square approximation is unreliable.
 #' @return Data.frame with \code{term}, \code{method}, \code{kappa} (Pratt index
-#'   for H), \code{se}, \code{chisq}, and \code{pval}.
+#'   for H), \code{se}, \code{chisq}, \code{pval}, and \code{cyh}.
 #' @export
-PrattTestSS <- function(n, bg, be, bh, var_y, maf, mean_e, var_e) {
+PrattTestSS <- function(
+    n,
+    bg,
+    be,
+    bh,
+    var_y,
+    maf,
+    mean_e,
+    var_e,
+    tau_cyh = 0.02
+) {
 
   # G: additive coding 0,1,2 => E[G] = 2*maf, Var(G) = 2*maf*(1-maf)
   mu_g <- 2 * maf
@@ -349,13 +378,19 @@ PrattTestSS <- function(n, bg, be, bh, var_y, maf, mean_e, var_e) {
   sigma_h_given_ge <- sigma_hh - (sigma_gh^2 / sigma_gg + sigma_eh^2 / sigma_ee)
   sigma_h_given_ge <- max(.Machine$double.eps, sigma_h_given_ge)
 
-  # Null variance of κ̂_H: V0(κ̂_H) = (Σ_HG*β_G,0 + Σ_HE*β_E,0)²/σ⁴_Y * σ²_ε,0/(N*σ²_H|GE)
-  c0 <- sigma_gh * bg_null + sigma_eh * be_null
-  var_kappa_null <- (c0 / var_y)^2 * (var_resid_null / (n * sigma_h_given_ge))
+  # cyh = Cov(Y, H) under null = Σ_GH*β_G,0 + Σ_EH*β_E,0
+  # Null variance of κ̂_H: V0(κ̂_H) = (cyh)²/σ⁴_Y * σ²_ε,0/(N*σ²_H|GE)
+  cyh <- sigma_gh * bg_null + sigma_eh * be_null
+  var_kappa_null <- (cyh / var_y)^2 * (var_resid_null / (n * sigma_h_given_ge))
   se <- sqrt(var_kappa_null)
 
   chisq <- (kappa_h / se)^2
   pval <- stats::pchisq(q = chisq, df = 1, lower.tail = FALSE)
+
+  # Apply cyh threshold: if |cyh| < tau_cyh, p-value is unreliable.
+  if (abs(cyh) < tau_cyh) {
+    pval <- NA_real_
+  }
 
   out <- data.frame(
     term = "H",
@@ -364,6 +399,7 @@ PrattTestSS <- function(n, bg, be, bh, var_y, maf, mean_e, var_e) {
     se = se,
     chisq = chisq,
     pval = pval,
+    cyh = cyh,
     stringsAsFactors = FALSE
   )
   return(out)

@@ -16,6 +16,7 @@ GenData(
   p_e = NULL,
   type_e = "normal",
   type_g = "binom",
+  type_y = "quant",
   var_e = 1,
   var_exp = 0.25,
   var_g = NULL,
@@ -45,9 +46,13 @@ GenData(
 
 \item{type_g}{Either "binom" or "normal".}
 
+\item{type_y}{Either "quant" for continuous phenotype or "binary" for binary
+phenotype generated via probit model.}
+
 \item{var_e}{Variance of E, if type_e = "normal".}
 
-\item{var_exp}{Proportion of variance in Y explained by (G, E, H).}
+\item{var_exp}{Proportion of variance in Y explained by (G, E, H). For binary
+phenotypes, this refers to the proportion of latent variation explained.}
 
 \item{var_g}{Variance of G, if type_g = "normal".}
 
@@ -60,4 +65,10 @@ minor allele frequency. If normal, specify mu_g and var_g. Likewise, environment
 can be binomial or normal. If binomial, specify n_e and p_e. If normal, specify
 mu_e and var_e. The residual phenotypic variance can either be specified directly,
 or it can be inferred by specifying the variance explained by (G, E, H).
+}
+\details{
+The phenotype can be continuous (type_y = "quant") or binary (type_y = "binary").
+For binary phenotypes, a probit model is used: Y = 1{eta + eps > 0} where
+eta = X * beta and eps ~ N(0, sigma^2). In this case, var_exp refers to the
+proportion of latent variation explained by (G, E, H).
 }
