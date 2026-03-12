@@ -40,10 +40,10 @@ head(data)
 
 ## Pratt test from individual-level data
 
-The function `PrattTest` estimates the p-value, calculates the standard
-error, and calculates the 2-sided p-value against the null hypothesis
-$H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because
-`beta_h != 0`.
+The function `PrattTest` estimates the Pratt index, calculates the
+standard error, and computes the 2-sided p-value against the null
+hypothesis $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result
+because `beta_h != 0`.
 
 ``` r
 # Run the Pratt index test for interaction.
@@ -53,8 +53,23 @@ result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e, use_score_te
 show(result)
 ```
 
-    ##   term method     kappa         se    chisq         pval
-    ## 1    H  Score 0.1695818 0.01197316 200.6047 1.541216e-45
+    ##   term method     kappa       cyh         se    chisq         pval
+    ## 1    H  Score 0.1695818 0.4002422 0.01197316 200.6047 1.541216e-45
+
+In the output,
+
+- `term` specifies the coefficient for which the Pratt index is being
+  estimated; `kappa` is the estimate and `se` its standard error.
+
+- `cyh` is the estimated covariance between the phenotype $Y$ and the
+  interaction term $H$. For the score test (`use_score_test = TRUE`),
+  this is computed under the null model; for the Wald test, it is
+  computed under the full model. When `|cyh|` is small (e.g., less than
+  0.02), the p-value from the score test is unreliable and will be set
+  to `NA`. This threshold can be modified via `tau_cyh`.
+
+- `chisq = (kappa/se)^2` is the $\chi^2$ statistic, and `pval` the
+  corresponding 2-sided p-value.
 
 ## Pratt test from summary statistics
 
@@ -99,5 +114,5 @@ result_ss <- PrattIndex::PrattTestSS(
 show(result_ss)
 ```
 
-    ##   term method     kappa         se    chisq         pval
-    ## 1    H  Score 0.1629577 0.01205436 182.7516 1.215244e-41
+    ##   term method     kappa       cyh         se    chisq         pval
+    ## 1    H  Score 0.1629577 0.3860201 0.01205436 182.7516 1.215244e-41

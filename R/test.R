@@ -63,8 +63,8 @@ ScoreTest <- function(
     term = "H",
     method = "Score",
     kappa = kappa_h,
-    se = sqrt(var_kappa_null),
-    cyh = cyh
+    cyh = cyh,
+    se = sqrt(var_kappa_null)
   )
   return(out)
 }
@@ -87,9 +87,6 @@ PrattTest <- function(y, g, e, use_score_test = TRUE, tau_cyh = 0.02) {
   # Pratt components.
   results <- PrattIndex(y = y, g = g, e = e)
   
-  # Compute cyh = Cov(Y, H) under the null for diagnostics.
-  cyh <- as.numeric(results$cov_xx[3, 1:2] %*% results$beta_null)
-  
   if (use_score_test) {
     out <- ScoreTest(
       beta_null = results$beta_null,
@@ -101,12 +98,14 @@ PrattTest <- function(y, g, e, use_score_test = TRUE, tau_cyh = 0.02) {
       tau_cyh = tau_cyh
     )
   } else {
+    # Compute cyh = Cov(Y, H) under the full model for Wald test.
+    cyh_full <- as.numeric(results$cov_xx[3, ] %*% results$beta)
     out <- data.frame(
       term = "H",
       method = "Wald",
       kappa = results$kappa[3],
-      se = sqrt(results$var_kappa[3]),
-      cyh = cyh
+      cyh = cyh_full,
+      se = sqrt(results$var_kappa[3])
     )
   }
   
@@ -396,10 +395,10 @@ PrattTestSS <- function(
     term = "H",
     method = "Score",
     kappa = kappa_h,
+    cyh = cyh,
     se = se,
     chisq = chisq,
     pval = pval,
-    cyh = cyh,
     stringsAsFactors = FALSE
   )
   return(out)

@@ -39,7 +39,7 @@ head(data)
 
 ## Pratt test from individual-level data
 
-The function `PrattTest` estimates the p-value, calculates the standard error, and calculates the 2-sided p-value against the null hypothesis $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because `beta_h != 0`.
+The function `PrattTest` estimates the Pratt index, calculates the standard error, and computes the 2-sided p-value against the null hypothesis $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because `beta_h != 0`.
 
 ```{R, cache=FALSE, results='hold'}
 # Run the Pratt index test for interaction.
@@ -48,6 +48,14 @@ result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e, use_score_te
 # Here we expect a significant result because beta_h != 0.
 show(result)
 ```
+
+In the output, 
+
+* `term` specifies the coefficient for which the Pratt index is being estimated; `kappa` is the estimate and `se` its standard error.  
+
+* `cyh` is the estimated covariance between the phenotype $Y$ and the interaction term $H$. For the score test (`use_score_test = TRUE`), this is computed under the null model; for the Wald test, it is computed under the full model. When `|cyh|` is small (e.g., less than 0.02), the p-value from the score test is unreliable and will be set to `NA`. This threshold can be modified via `tau_cyh`. 
+
+* `chisq = (kappa/se)^2` is the $\chi^2$ statistic, and `pval` the corresponding 2-sided p-value. 
 
 ## Pratt test from summary statistics
 

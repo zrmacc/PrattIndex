@@ -24,7 +24,7 @@ test_that("PrattTest returns data.frame with expected columns", {
   out_score <- PrattTest(df$y, df$g, df$e, use_score_test = TRUE)
   out_wald <- PrattTest(df$y, df$g, df$e, use_score_test = FALSE)
   expect_s3_class(out_score, "data.frame")
-  expect_named(out_score, c("term", "method", "kappa", "se", "cyh", "chisq", "pval"))
+  expect_named(out_score, c("term", "method", "kappa", "cyh", "se", "chisq", "pval"))
   expect_equal(out_score$term, "H")
   expect_equal(out_score$method, "Score")
   expect_equal(out_wald$method, "Wald")
@@ -54,6 +54,34 @@ test_that("PrattTest Wald test reports cyh but ignores tau_cyh", {
   expect_false(is.na(out_wald_strict$pval))
 })
 
+test_that("PrattTest cyh is computed correctly for score (null) vs Wald (full) models", {
+  set.seed(23)
+  df <- GenData(n = 1000, beta_g = 0.2, beta_e = 0.3, beta_h = 0.1, var_resid = 1)
+
+  # Get Pratt components to manually compute expected cyh.
+  pi <- PrattIndex(df$y, df$g, df$e)
+  cov_xx <- pi$cov_xx
+  beta_full <- as.numeric(pi$beta)
+  beta_null <- as.numeric(pi$beta_null)
+
+  # Expected cyh under null: Cov(Y,H)|null = sigma_GH * beta_G_null + sigma_EH * beta_E_null
+  cyh_null_expected <- cov_xx[3, 1] * beta_null[1] + cov_xx[3, 2] * beta_null[2]
+
+ # Expected cyh under full model: Cov(Y,H)|full = sigma_GH * beta_G + sigma_EH * beta_E + sigma_HH * beta_H
+  cyh_full_expected <- cov_xx[3, 1] * beta_full[1] + cov_xx[3, 2] * beta_full[2] + cov_xx[3, 3] * beta_full[3]
+
+  # Run tests.
+  out_score <- PrattTest(df$y, df$g, df$e, use_score_test = TRUE, tau_cyh = 0)
+  out_wald <- PrattTest(df$y, df$g, df$e, use_score_test = FALSE)
+
+  # Verify cyh values.
+  expect_equal(out_score$cyh, cyh_null_expected)
+  expect_equal(out_wald$cyh, cyh_full_expected)
+
+  # Verify that cyh differs between score and Wald (since beta_h != 0).
+  expect_false(isTRUE(all.equal(out_score$cyh, out_wald$cyh)))
+})
+
 test_that("PrattTest under null gives kappa_H near zero", {
   set.seed(3)
   df <- GenData(n = 2000, beta_g = 0.05, beta_e = 0.1, beta_h = 0, var_resid = 1)
@@ -72,7 +100,7 @@ test_that("PrattTestSS returns expected structure", {
     var_y = 2, maf = 0.3, mean_e = 0, var_e = 1
   )
   expect_s3_class(out, "data.frame")
-  expect_named(out, c("term", "method", "kappa", "se", "chisq", "pval", "cyh"))
+  expect_named(out, c("term", "method", "kappa", "cyh", "se", "chisq", "pval"))
   expect_equal(out$term, "H")
   expect_equal(out$method, "Score")
   expect_equal(nrow(out), 1L)
