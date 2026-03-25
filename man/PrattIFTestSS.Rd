@@ -4,7 +4,18 @@
 \alias{PrattIFTestSS}
 \title{Pratt influence-function-style test from summary statistics}
 \usage{
-PrattIFTestSS(n, bg, be, bh, var_y, maf, mean_e, var_e)
+PrattIFTestSS(
+  n,
+  bg,
+  be,
+  bh,
+  var_y,
+  maf = NULL,
+  mu_g = NULL,
+  var_g = NULL,
+  mean_e,
+  var_e
+)
 }
 \arguments{
 \item{n}{Sample size.}
@@ -17,7 +28,14 @@ PrattIFTestSS(n, bg, be, bh, var_y, maf, mean_e, var_e)
 
 \item{var_y}{Marginal variance of the phenotype Y.}
 
-\item{maf}{Minor allele frequency of G (additive coding 0, 1, 2 assumed).}
+\item{maf}{Minor allele frequency of G (additive coding 0, 1, 2 assumed).
+Provide either \code{maf} or \code{mu_g} and \code{var_g}.}
+
+\item{mu_g}{Marginal mean of G under additive coding (0, 1, 2 assumed).
+Provide either \code{maf} or \code{mu_g} and \code{var_g}.}
+
+\item{var_g}{Marginal variance of G under additive coding (0, 1, 2 assumed).
+Provide either \code{maf} or \code{mu_g} and \code{var_g}.}
 
 \item{mean_e}{Marginal mean of E.}
 

@@ -78,14 +78,9 @@ starting from summary statistics. The required inputs are:
 
 1.  The joint-model coefficients $\hat{\beta}_G$, $\hat{\beta}_E$,
     $\hat{\beta}_H$.
-2.  The minor allele frequency of the variant $G$.
+2.  The mean and variance of the variant $G$.
 3.  The mean and variance of the environment $E$.
 4.  The marginal variance of $Y$.
-
-In order to minimize the number of inputs required, `PrattTestSS` makes
-the assumption that $G$ and $E$ are independent. Note that the test
-starting from individual-level data does not assume $G \perp E$, which
-accounts for the numeric discrepancy.
 
 ``` r
 # 1. Fit joint model and extract coefficients
@@ -96,7 +91,8 @@ bh  <- unname(coef(fit)["I(g * e)"])
 
 # 2. Summary statistics required by PrattTestSS
 var_y  <- var(data$y)
-maf    <- mean(data$g) / 2
+mu_g   <- mean(data$g)
+var_g  <- var(data$g)
 mean_e <- mean(data$e)
 var_e  <- var(data$e)
 
@@ -106,7 +102,8 @@ result_ss <- PrattIndex::PrattTestSS(
   bg = bg,
   be = be,
   bh = bh,
-  maf = maf,
+  mu_g = mu_g,
+  var_g = var_g,
   mean_e = mean_e,
   var_e = var_e,
   var_y = var_y
@@ -114,5 +111,16 @@ result_ss <- PrattIndex::PrattTestSS(
 show(result_ss)
 ```
 
-    ##   term method     kappa       cyh         se    chisq         pval
-    ## 1    H  Score 0.1629577 0.3860201 0.01205436 182.7516 1.215244e-41
+    ##   term method     kappa       cyh         se   chisq         pval
+    ## 1    H  Score 0.1639126 0.3860677 0.01191262 189.326 4.461253e-43
+
+#### Notes
+
+- In order to minimize the number of inputs required, `PrattTestSS`
+  makes the assumption that $G$ and $E$ are independent. Note that the
+  test starting from individual-level data does not assume $G \perp E$,
+  which accounts for the numeric discrepancy.
+
+- Minor allele frequency can be provided in place of the mean and
+  variance of $G$. If provided, the mean and variance are calculated as
+  `mu_g <- 2 * maf` and `var_g <- 2 * maf * (1 - maf)`.

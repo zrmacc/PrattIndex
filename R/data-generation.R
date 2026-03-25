@@ -208,7 +208,7 @@ GenPheno <- function(
 #' or it can be inferred by specifying the variance explained by (G, E, H).
 #'
 #' The phenotype can be continuous (type_y = "quant") or binary (type_y = "binary").
-#' For binary phenotypes, a probit model is used: Y = 1{eta + eps > 0} where
+#' For binary phenotypes, a probit model is used: Y = 1(eta + eps > 0) where
 #' eta = X * beta and eps ~ N(0, sigma^2). In this case, var_exp refers to the
 #' proportion of latent variation explained by (G, E, H).
 #'

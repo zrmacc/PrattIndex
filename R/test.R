@@ -215,6 +215,35 @@ PrattIFTest <- function(y, g, e) {
 # ------------------------------------------------------------------------------
 
 
+#' Resolve genotype moments from summary-stat inputs
+#'
+#' Helper used by summary-statistic functions to resolve \code{mu_g} and
+#' \code{var_g} either from \code{maf} (assuming additive coding 0, 1, 2) or
+#' directly from user-provided moments.
+#'
+#' @param maf Minor allele frequency of G (additive coding 0, 1, 2 assumed).
+#' @param mu_g Marginal mean of G under additive coding (0, 1, 2 assumed).
+#' @param var_g Marginal variance of G under additive coding (0, 1, 2 assumed).
+#' @return List with \code{mu_g} and \code{var_g}.
+#' @keywords internal
+.ResolveGMoments <- function(maf = NULL, mu_g = NULL, var_g = NULL) {
+  if (!is.null(maf)) {
+    if (!is.null(mu_g) || !is.null(var_g)) {
+      stop("Provide either maf, or mu_g and var_g (not both).")
+    }
+    mu_g_out <- 2 * maf
+    var_g_out <- 2 * maf * (1 - maf)
+    return(list(mu_g = mu_g_out, var_g = var_g_out))
+  }
+
+  if (is.null(mu_g) || is.null(var_g)) {
+    stop("Must provide either maf, or both mu_g and var_g.")
+  }
+
+  return(list(mu_g = mu_g, var_g = var_g))
+}
+
+
 #' Pratt influence-function-style test from summary statistics
 #'
 #' Computes Wald tests for the Pratt indices for G, E, and H using the same
@@ -238,15 +267,32 @@ PrattIFTest <- function(y, g, e) {
 #' @param bh Coefficient of H (interaction) from the joint model Y ~ G + E + H.
 #' @param var_y Marginal variance of the phenotype Y.
 #' @param maf Minor allele frequency of G (additive coding 0, 1, 2 assumed).
+#'   Provide either \code{maf} or \code{mu_g} and \code{var_g}.
+#' @param mu_g Marginal mean of G under additive coding (0, 1, 2 assumed).
+#'   Provide either \code{maf} or \code{mu_g} and \code{var_g}.
+#' @param var_g Marginal variance of G under additive coding (0, 1, 2 assumed).
+#'   Provide either \code{maf} or \code{mu_g} and \code{var_g}.
 #' @param mean_e Marginal mean of E.
 #' @param var_e Marginal variance of E.
 #' @return Data.frame with \code{term} (G, E, H), \code{method} (\dQuote{Wald}),
 #'   \code{kappa}, \code{se}, \code{chisq}, and \code{pval}.
 #' @export
-PrattIFTestSS <- function(n, bg, be, bh, var_y, maf, mean_e, var_e) {
+PrattIFTestSS <- function(
+    n,
+    bg,
+    be,
+    bh,
+    var_y,
+    maf = NULL,
+    mu_g = NULL,
+    var_g = NULL,
+    mean_e,
+    var_e
+) {
 
-  mu_g <- 2 * maf
-  sigma_gg <- 2 * maf * (1 - maf)
+  g_moments <- .ResolveGMoments(maf = maf, mu_g = mu_g, var_g = var_g)
+  mu_g <- g_moments$mu_g
+  sigma_gg <- g_moments$var_g
   sigma_ge <- 0
   sigma_ee <- var_e
   mu_e_val <- mean_e
@@ -322,6 +368,11 @@ PrattIFTestSS <- function(n, bg, be, bh, var_y, maf, mean_e, var_e) {
 #' @param bh Coefficient of H (interaction) from the joint model Y ~ G + E + H.
 #' @param var_y Marginal variance of the phenotype Y.
 #' @param maf Minor allele frequency of G (additive coding 0, 1, 2 assumed).
+#'   Provide either \code{maf} or \code{mu_g} and \code{var_g}.
+#' @param mu_g Marginal mean of G under additive coding (0, 1, 2 assumed).
+#'   Provide either \code{maf} or \code{mu_g} and \code{var_g}.
+#' @param var_g Marginal variance of G under additive coding (0, 1, 2 assumed).
+#'   Provide either \code{maf} or \code{mu_g} and \code{var_g}.
 #' @param mean_e Marginal mean of E.
 #' @param var_e Marginal variance of E.
 #' @param tau_cyh Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
@@ -335,15 +386,18 @@ PrattTestSS <- function(
     be,
     bh,
     var_y,
-    maf,
+    maf = NULL,
+    mu_g = NULL,
+    var_g = NULL,
     mean_e,
     var_e,
     tau_cyh = 0.02
 ) {
 
   # G: additive coding 0,1,2 => E[G] = 2*maf, Var(G) = 2*maf*(1-maf)
-  mu_g <- 2 * maf
-  sigma_gg <- 2 * maf * (1 - maf)
+  g_moments <- .ResolveGMoments(maf = maf, mu_g = mu_g, var_g = var_g)
+  mu_g <- g_moments$mu_g
+  sigma_gg <- g_moments$var_g
   sigma_ge <- 0
 
   sigma_ee <- var_e

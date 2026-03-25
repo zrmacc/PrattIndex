@@ -135,6 +135,37 @@ test_that("PrattTestSS kappa_H matches PrattIndex from same data", {
   expect_true(isTRUE(all.equal(out_ss$kappa, kappa_h_full, tolerance = 0.02)))
 })
 
+test_that("PrattTestSS maf vs (mu_g, var_g) inputs are numerically equivalent", {
+  out_maf <- PrattTestSS(
+    n = 1000,
+    bg = 0.1,
+    be = 0.2,
+    bh = 0.05,
+    var_y = 2,
+    maf = 0.3,
+    mean_e = 0,
+    var_e = 1,
+    tau_cyh = 0
+  )
+
+  mu_g <- 2 * 0.3
+  var_g <- 2 * 0.3 * (1 - 0.3)
+  out_mom <- PrattTestSS(
+    n = 1000,
+    bg = 0.1,
+    be = 0.2,
+    bh = 0.05,
+    var_y = 2,
+    mu_g = mu_g,
+    var_g = var_g,
+    mean_e = 0,
+    var_e = 1,
+    tau_cyh = 0
+  )
+
+  expect_equal(out_maf, out_mom)
+})
+
 test_that("PrattTestSS applies tau_cyh threshold", {
   # Small cyh scenario: small beta_e with small mean_e.
   out_small_cyh <- PrattTestSS(
@@ -188,6 +219,35 @@ test_that("PrattIFTestSS returns expected structure", {
   expect_equal(out$term, c("G", "E", "H"))
   expect_equal(out$method, rep("Wald", 3L))
   expect_true(all(out$se > 0))
+})
+
+test_that("PrattIFTestSS maf vs (mu_g, var_g) inputs are numerically equivalent", {
+  out_maf <- PrattIFTestSS(
+    n = 1000,
+    bg = 0.1,
+    be = 0.2,
+    bh = 0.1,
+    var_y = 2,
+    maf = 0.3,
+    mean_e = 0,
+    var_e = 1
+  )
+
+  mu_g <- 2 * 0.3
+  var_g <- 2 * 0.3 * (1 - 0.3)
+  out_mom <- PrattIFTestSS(
+    n = 1000,
+    bg = 0.1,
+    be = 0.2,
+    bh = 0.1,
+    var_y = 2,
+    mu_g = mu_g,
+    var_g = var_g,
+    mean_e = 0,
+    var_e = 1
+  )
+
+  expect_equal(out_maf, out_mom)
 })
 
 test_that("PrattIFTestSS kappa matches PrattIndex from same data", {
