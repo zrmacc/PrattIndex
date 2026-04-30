@@ -72,7 +72,8 @@ ScoreTest <- function(
 
 #' Pratt Test
 #' 
-#' Performs the Pratt test for the interaction between G and E.
+#' Performs Wald tests for the Pratt indices of G, E, and H = G*E using the
+#' influence-function-based variance estimator.
 #' 
 #' @param y Phenotype.
 #' @param g Genotype.
@@ -80,9 +81,7 @@ ScoreTest <- function(
 #' @return Data.frame of results.
 #' @export 
 PrattTest <- function(y, g, e) {
-  out <- PrattIFTest(y = y, g = g, e = e)
-  out <- out[out$term == "H", , drop = FALSE]
-  return(out)
+  return(PrattIFTest(y = y, g = g, e = e))
 }
 
 

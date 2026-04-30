@@ -39,7 +39,7 @@ head(data)
 
 ## Pratt test from individual-level data
 
-The function `PrattTest` estimates the Pratt index, calculates the standard error, and computes the 2-sided p-value against the null hypothesis $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result because `beta_h != 0`.
+The function `PrattTest` estimates the Pratt indices for $G$, $E$, and $H = G \times E$, calculates standard errors using the empirical influence function, and computes 2-sided p-values against $H_{0}: \kappa = 0$. Here, we expect a significant result for $H$ because `beta_h != 0`.
 
 ```{R, cache=FALSE, results='hold'}
 # Run the Pratt index test for interaction.

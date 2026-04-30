@@ -26,26 +26,26 @@ test_that("PrattTest returns data.frame with expected columns", {
   out <- PrattTest(df$y, df$g, df$e)
   expect_s3_class(out, "data.frame")
   expect_named(out, c("term", "method", "kappa", "se", "chisq", "pval"))
-  expect_equal(out$term, "H")
-  expect_equal(out$method, "Wald")
-  expect_true(out$se > 0)
+  expect_equal(nrow(out), 3L)
+  expect_equal(out$term, c("G", "E", "H"))
+  expect_equal(out$method, rep("Wald", 3L))
+  expect_gt(min(out$se), 0)
 })
 
-test_that("PrattTest matches H row of PrattIFTest", {
+test_that("PrattTest matches PrattIFTest", {
   set.seed(23)
   df <- GenData(n = 1000, beta_g = 0.2, beta_e = 0.3, beta_h = 0.1, var_resid = 1)
   out <- PrattTest(df$y, df$g, df$e)
   out_if <- PrattIFTest(df$y, df$g, df$e)
-  h_if <- out_if[out_if$term == "H", , drop = FALSE]
-  expect_equal(out, h_if)
+  expect_equal(out, out_if)
 })
 
 test_that("PrattTest under null gives kappa_H near zero", {
   set.seed(3)
   df <- GenData(n = 2000, beta_g = 0.05, beta_e = 0.1, beta_h = 0, var_resid = 1)
   out <- PrattTest(df$y, df$g, df$e)
-  expect_equal(out$term, "H")
-  expect_lt(abs(out$kappa), 0.05)
+  h <- out[out$term == "H", , drop = FALSE]
+  expect_lt(abs(h$kappa), 0.05)
 })
 
 # ------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ test_that("PrattTestSS with bh=0 gives kappa_H=0 and pval_H=1", {
   )
   h <- out[out$term == "H", , drop = FALSE]
   expect_equal(h$kappa, 0)
-  expect_true(h$se > 0)
+  expect_gt(h$se, 0)
   expect_equal(h$pval, 1)
 })
 
@@ -146,8 +146,9 @@ test_that("PrattIFTest returns three rows (G, E, H)", {
   expect_equal(nrow(out), 3L)
   expect_equal(out$term, c("G", "E", "H"))
   expect_named(out, c("term", "method", "kappa", "se", "chisq", "pval"))
-  expect_true(all(out$se > 0))
-  expect_true(all(out$pval >= 0 & out$pval <= 1))
+  expect_gt(min(out$se), 0)
+  expect_gte(min(out$pval), 0)
+  expect_lte(max(out$pval), 1)
 })
 
 test_that("PrattTestSS kappa matches PrattIndex from same data", {

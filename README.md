@@ -40,9 +40,10 @@ head(data)
 
 ## Pratt test from individual-level data
 
-The function `PrattTest` estimates the Pratt index, calculates the
-standard error, and computes the 2-sided p-value against the null
-hypothesis $H_{0}: \kappa_{H} = 0$. Here, we expect a significant result
+The function `PrattTest` estimates the Pratt indices for $G$, $E$, and
+$H = G \times E$, calculates standard errors using the empirical
+influence function, and computes 2-sided p-values against
+$H_{0}: \kappa = 0$. Here, we expect a significant result for $H$
 because `beta_h != 0`.
 
 ``` r
@@ -53,8 +54,10 @@ result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e)
 show(result)
 ```
 
-    ##   term method     kappa         se    chisq         pval
-    ## 3    H   Wald 0.1695818 0.01853812 83.68107 5.813937e-20
+    ##   term method      kappa         se     chisq         pval
+    ## 1    G   Wald 0.07195285 0.01184759  36.88380 1.253833e-09
+    ## 2    E   Wald 0.36145429 0.02264090 254.87051 2.252503e-57
+    ## 3    H   Wald 0.16958181 0.01853812  83.68107 5.813937e-20
 
 In the output,
 
