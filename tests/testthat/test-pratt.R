@@ -23,65 +23,21 @@ test_that("PrattIndex returns expected structure", {
 test_that("PrattTest returns data.frame with expected columns", {
   set.seed(2)
   df <- GenData(n = 300, beta_h = 0)
-  out_score <- PrattTest(df$y, df$g, df$e, use_score_test = TRUE)
-  out_wald <- PrattTest(df$y, df$g, df$e, use_score_test = FALSE)
-  expect_s3_class(out_score, "data.frame")
-  expect_named(out_score, c("term", "method", "kappa", "cyh", "se", "chisq", "pval"))
-  expect_equal(out_score$term, "H")
-  expect_equal(out_score$method, "Score")
-  expect_equal(out_wald$method, "Wald")
-  expect_true(out_score$se > 0)
-  expect_true(is.numeric(out_score$cyh))
-  expect_true(is.numeric(out_wald$cyh))
+  out <- PrattTest(df$y, df$g, df$e)
+  expect_s3_class(out, "data.frame")
+  expect_named(out, c("term", "method", "kappa", "se", "chisq", "pval"))
+  expect_equal(out$term, "H")
+  expect_equal(out$method, "Wald")
+  expect_true(out$se > 0)
 })
 
-test_that("PrattTest applies tau_cyh threshold", {
-  set.seed(21)
-  df <- GenData(n = 5000, beta_g = 0, beta_e = 0.2, beta_h = 0, mu_e = 3)
-  out_default <- PrattTest(df$y, df$g, df$e, tau_cyh = 0.02)
-  out_strict <- PrattTest(df$y, df$g, df$e, tau_cyh = 1.0)
-  out_none <- PrattTest(df$y, df$g, df$e, tau_cyh = 0)
-  expect_true(is.numeric(out_default$cyh))
-  if (abs(out_strict$cyh) < 1.0) {
-    expect_true(is.na(out_strict$pval))
-  }
-  expect_false(is.na(out_none$pval))
-})
-
-test_that("PrattTest Wald test reports cyh but ignores tau_cyh", {
-  set.seed(22)
-  df <- GenData(n = 5000, beta_g = 0, beta_e = 0.2, beta_h = 0, mu_e = 3)
-  out_wald_strict <- PrattTest(df$y, df$g, df$e, use_score_test = FALSE, tau_cyh = 1.0)
-  expect_true(is.numeric(out_wald_strict$cyh))
-  expect_false(is.na(out_wald_strict$pval))
-})
-
-test_that("PrattTest cyh is computed correctly for score (null) vs Wald (full) models", {
+test_that("PrattTest matches H row of PrattIFTest", {
   set.seed(23)
   df <- GenData(n = 1000, beta_g = 0.2, beta_e = 0.3, beta_h = 0.1, var_resid = 1)
-
-  # Get Pratt components to manually compute expected cyh.
-  pi <- PrattIndex(df$y, df$g, df$e)
-  cov_xx <- pi$cov_xx
-  beta_full <- as.numeric(pi$beta)
-  beta_null <- as.numeric(pi$beta_null)
-
-  # Expected cyh under null: Cov(Y,H)|null = sigma_GH * beta_G_null + sigma_EH * beta_E_null
-  cyh_null_expected <- cov_xx[3, 1] * beta_null[1] + cov_xx[3, 2] * beta_null[2]
-
- # Expected cyh under full model: Cov(Y,H)|full = sigma_GH * beta_G + sigma_EH * beta_E + sigma_HH * beta_H
-  cyh_full_expected <- cov_xx[3, 1] * beta_full[1] + cov_xx[3, 2] * beta_full[2] + cov_xx[3, 3] * beta_full[3]
-
-  # Run tests.
-  out_score <- PrattTest(df$y, df$g, df$e, use_score_test = TRUE, tau_cyh = 0)
-  out_wald <- PrattTest(df$y, df$g, df$e, use_score_test = FALSE)
-
-  # Verify cyh values.
-  expect_equal(out_score$cyh, cyh_null_expected)
-  expect_equal(out_wald$cyh, cyh_full_expected)
-
-  # Verify that cyh differs between score and Wald (since beta_h != 0).
-  expect_false(isTRUE(all.equal(out_score$cyh, out_wald$cyh)))
+  out <- PrattTest(df$y, df$g, df$e)
+  out_if <- PrattIFTest(df$y, df$g, df$e)
+  h_if <- out_if[out_if$term == "H", , drop = FALSE]
+  expect_equal(out, h_if)
 })
 
 test_that("PrattTest under null gives kappa_H near zero", {

@@ -1,6 +1,6 @@
 Package: PrattIndex
 Title: Inference on the Pratt Index
-Version: 0.0.3
+Version: 0.0.4
 Author: Zachary McCaw [aut, cre] (<https://orcid.org/0000-0002-2006-9828>)
 Maintainer: Zachary McCaw <zmccaw@alumni.harvard.edu>
 Description: Inference on the Pratt Index.

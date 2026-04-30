@@ -47,26 +47,21 @@ because `beta_h != 0`.
 
 ``` r
 # Run the Pratt index test for interaction.
-result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e, use_score_test = TRUE)
+result <- PrattIndex::PrattTest(y = data$y, g = data$g, e = data$e)
 
 # Here we expect a significant result because beta_h != 0.
 show(result)
 ```
 
-    ##   term method     kappa       cyh         se    chisq         pval
-    ## 1    H  Score 0.1695818 0.4002422 0.01197316 200.6047 1.541216e-45
+    ##   term method     kappa         se    chisq         pval
+    ## 3    H   Wald 0.1695818 0.01853812 83.68107 5.813937e-20
 
 In the output,
 
 - `term` specifies the coefficient for which the Pratt index is being
-  estimated; `kappa` is the estimate and `se` its standard error.
+  estimated.
 
-- `cyh` is the estimated covariance between the phenotype $Y$ and the
-  interaction term $H$. For the score test (`use_score_test = TRUE`),
-  this is computed under the null model; for the Wald test, it is
-  computed under the full model. When `|cyh|` is small (e.g., less than
-  0.02), the p-value from the score test is unreliable and will be set
-  to `NA`. This threshold can be modified via `tau_cyh`.
+- `kappa` is the estimated Pratt index and `se` its standard error.
 
 - `chisq = (kappa/se)^2` is the $\chi^2$ statistic, and `pval` the
   corresponding 2-sided p-value.

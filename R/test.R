@@ -77,47 +77,11 @@ ScoreTest <- function(
 #' @param y Phenotype.
 #' @param g Genotype.
 #' @param e Environment.
-#' @param use_score_test Logical.
-#' @param tau_cyh Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
-#'   the p-value is set to NA. Only applies when use_score_test = TRUE.
 #' @return Data.frame of results.
 #' @export 
-PrattTest <- function(y, g, e, use_score_test = TRUE, tau_cyh = 0.02) {
-  
-  # Pratt components.
-  results <- PrattIndex(y = y, g = g, e = e)
-  
-  if (use_score_test) {
-    out <- ScoreTest(
-      beta_null = results$beta_null,
-      cov_xx = results$cov_xx,
-      kappa_h = results$kappa[3],
-      n = results$n,
-      var_resid_null = results$var_resid_null,
-      var_y = results$var_y,
-      tau_cyh = tau_cyh
-    )
-  } else {
-    # Compute cyh = Cov(Y, H) under the full model for Wald test.
-    cyh_full <- as.numeric(results$cov_xx[3, ] %*% results$beta)
-    out <- data.frame(
-      term = "H",
-      method = "Wald",
-      kappa = results$kappa[3],
-      cyh = cyh_full,
-      se = sqrt(results$var_kappa[3])
-    )
-  }
-  
-  # Finalize test results.
-  out$chisq <- (out$kappa / out$se)^2
-  out$pval <- stats::pchisq(q = out$chisq, df = 1, lower.tail = FALSE)
-  
-  # Apply cyh threshold: if |cyh| < tau_cyh, p-value is unreliable (score test only).
-  if (use_score_test && abs(out$cyh) < tau_cyh) {
-    out$pval <- NA_real_
-  }
-  
+PrattTest <- function(y, g, e) {
+  out <- PrattIFTest(y = y, g = g, e = e)
+  out <- out[out$term == "H", , drop = FALSE]
   return(out)
 }
 
@@ -208,6 +172,12 @@ PrattIFTest <- function(y, g, e) {
   # Calculate p-values.
   out$chisq <- (out$kappa / out$se)^2
   out$pval <- stats::pchisq(q = out$chisq, df = 1, lower.tail = FALSE)
+
+  # Degenerate variance: if se is 0 or non-finite, p-value is undefined.
+  bad <- (!is.finite(out$se)) | (out$se == 0)
+  out$chisq[bad] <- NA_real_
+  out$pval[bad] <- NA_real_
+
   return(out)
 }
 
