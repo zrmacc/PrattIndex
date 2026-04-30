@@ -9,3 +9,10 @@ README
 ^\\.Rcheck$
 ^\\.Rhistory$
 ^\.DS_Store$
+^\\.git$
+^\\.git/
+^\\.gitignore$
+^src/\\.gitignore$
+^src/\\.DS_Store$
+^tests/\\.DS_Store$
+^R/\\.Rhistory$

@@ -2,6 +2,8 @@
 # PrattIndex, PrattTest, ScoreTest
 # ------------------------------------------------------------------------------
 
+local_edition(2)
+
 test_that("PrattIndex returns expected structure", {
   set.seed(1)
   df <- GenData(n = 200, beta_h = 0, var_resid = 1)
@@ -91,30 +93,42 @@ test_that("PrattTest under null gives kappa_H near zero", {
 })
 
 # ------------------------------------------------------------------------------
-# PrattTestSS
+# PrattTestSS (summary-statistic Pratt test; delta/Wald)
 # ------------------------------------------------------------------------------
 
 test_that("PrattTestSS returns expected structure", {
   out <- PrattTestSS(
-    n = 1000, bg = 0.1, be = 0.2, bh = 0,
-    var_y = 2, maf = 0.3, mean_e = 0, var_e = 1
+    n = 1000,
+    bg = 0.1,
+    be = 0.2,
+    bh = 0,
+    var_y = 2,
+    maf = 0.3,
+    mean_e = 0,
+    var_e = 1
   )
   expect_s3_class(out, "data.frame")
-  expect_named(out, c("term", "method", "kappa", "cyh", "se", "chisq", "pval"))
-  expect_equal(out$term, "H")
-  expect_equal(out$method, "Score")
-  expect_equal(nrow(out), 1L)
-  expect_true(is.numeric(out$cyh))
+  expect_equal(nrow(out), 3L)
+  expect_equal(out$term, c("G", "E", "H"))
+  expect_equal(out$method, rep("Wald", 3L))
+  expect_named(out, c("term", "method", "kappa", "se", "chisq", "pval"))
 })
 
-test_that("PrattTestSS with bh=0 gives kappa=0", {
+test_that("PrattTestSS with bh=0 gives kappa_H=0 and pval_H=1", {
   out <- PrattTestSS(
-    n = 500, bg = 0.1, be = 0.2, bh = 0,
-    var_y = 2, maf = 0.25, mean_e = 0, var_e = 1
+    n = 500,
+    bg = 0.1,
+    be = 0.2,
+    bh = 0,
+    var_y = 2,
+    maf = 0.25,
+    mean_e = 0,
+    var_e = 1
   )
-  expect_equal(out$kappa, 0)
-  expect_true(out$se > 0)
-  expect_equal(out$pval, 1)
+  h <- out[out$term == "H", , drop = FALSE]
+  expect_equal(h$kappa, 0)
+  expect_true(h$se > 0)
+  expect_equal(h$pval, 1)
 })
 
 test_that("PrattTestSS kappa_H matches PrattIndex from same data", {
@@ -132,7 +146,8 @@ test_that("PrattTestSS kappa_H matches PrattIndex from same data", {
     mean_e = mean(df$e), var_e = var(df$e)
   )
   # Summary-statistic kappa_H matches full-data (sample vs population moments => relax tolerance)
-  expect_true(isTRUE(all.equal(out_ss$kappa, kappa_h_full, tolerance = 0.02)))
+  h <- out_ss[out_ss$term == "H", , drop = FALSE]
+  expect_true(isTRUE(all.equal(h$kappa, kappa_h_full, tolerance = 0.02)))
 })
 
 test_that("PrattTestSS maf vs (mu_g, var_g) inputs are numerically equivalent", {
@@ -144,8 +159,7 @@ test_that("PrattTestSS maf vs (mu_g, var_g) inputs are numerically equivalent", 
     var_y = 2,
     maf = 0.3,
     mean_e = 0,
-    var_e = 1,
-    tau_cyh = 0
+    var_e = 1
   )
 
   mu_g <- 2 * 0.3
@@ -159,44 +173,14 @@ test_that("PrattTestSS maf vs (mu_g, var_g) inputs are numerically equivalent", 
     mu_g = mu_g,
     var_g = var_g,
     mean_e = 0,
-    var_e = 1,
-    tau_cyh = 0
+    var_e = 1
   )
 
   expect_equal(out_maf, out_mom)
 })
 
-test_that("PrattTestSS applies tau_cyh threshold", {
-  # Small cyh scenario: small beta_e with small mean_e.
-  out_small_cyh <- PrattTestSS(
-    n = 100000, bg = 0, be = 0.001, bh = 0,
-    var_y = 1, maf = 0.3, mean_e = 0.01, var_e = 1,
-    tau_cyh = 0.02
-  )
-  expect_true(abs(out_small_cyh$cyh) < 0.02)
-  expect_true(is.na(out_small_cyh$pval))
-
-  # Large cyh scenario: larger beta_e.
-  out_large_cyh <- PrattTestSS(
-    n = 100000, bg = 0, be = 0.2, bh = 0,
-    var_y = 1, maf = 0.3, mean_e = 3, var_e = 1,
-    tau_cyh = 0.02
-  )
-  expect_true(abs(out_large_cyh$cyh) > 0.02)
-  expect_false(is.na(out_large_cyh$pval))
-})
-
-test_that("PrattTestSS with tau_cyh = 0 never returns NA pval", {
-  out <- PrattTestSS(
-    n = 100000, bg = 0, be = 0.001, bh = 0,
-    var_y = 1, maf = 0.3, mean_e = 0.01, var_e = 1,
-    tau_cyh = 0
-  )
-  expect_false(is.na(out$pval))
-})
-
 # ------------------------------------------------------------------------------
-# PrattIFTest, PrattIFTestSS
+# PrattIFTest
 # ------------------------------------------------------------------------------
 
 test_that("PrattIFTest returns three rows (G, E, H)", {
@@ -210,47 +194,7 @@ test_that("PrattIFTest returns three rows (G, E, H)", {
   expect_true(all(out$pval >= 0 & out$pval <= 1))
 })
 
-test_that("PrattIFTestSS returns expected structure", {
-  out <- PrattIFTestSS(
-    n = 1000, bg = 0.1, be = 0.2, bh = 0.1,
-    var_y = 2, maf = 0.3, mean_e = 0, var_e = 1
-  )
-  expect_equal(nrow(out), 3L)
-  expect_equal(out$term, c("G", "E", "H"))
-  expect_equal(out$method, rep("Wald", 3L))
-  expect_true(all(out$se > 0))
-})
-
-test_that("PrattIFTestSS maf vs (mu_g, var_g) inputs are numerically equivalent", {
-  out_maf <- PrattIFTestSS(
-    n = 1000,
-    bg = 0.1,
-    be = 0.2,
-    bh = 0.1,
-    var_y = 2,
-    maf = 0.3,
-    mean_e = 0,
-    var_e = 1
-  )
-
-  mu_g <- 2 * 0.3
-  var_g <- 2 * 0.3 * (1 - 0.3)
-  out_mom <- PrattIFTestSS(
-    n = 1000,
-    bg = 0.1,
-    be = 0.2,
-    bh = 0.1,
-    var_y = 2,
-    mu_g = mu_g,
-    var_g = var_g,
-    mean_e = 0,
-    var_e = 1
-  )
-
-  expect_equal(out_maf, out_mom)
-})
-
-test_that("PrattIFTestSS kappa matches PrattIndex from same data", {
+test_that("PrattTestSS kappa matches PrattIndex from same data", {
   set.seed(6)
   df <- GenData(n = 400, beta_g = 0.08, beta_e = 0.15, beta_h = 0.1, var_resid = 1)
   fit <- lm(y ~ g + e + I(g * e), data = df)
@@ -258,7 +202,7 @@ test_that("PrattIFTestSS kappa matches PrattIndex from same data", {
   be <- unname(coef(fit)["e"])
   bh <- unname(coef(fit)["I(g * e)"])
   pi_full <- PrattIndex(df$y, df$g, df$e)
-  out_ss <- PrattIFTestSS(
+  out_ss <- PrattTestSS(
     n = nrow(df), bg = bg, be = be, bh = bh,
     var_y = var(df$y), maf = mean(df$g) / 2,
     mean_e = mean(df$e), var_e = var(df$e)
@@ -332,6 +276,70 @@ test_that("GenData with type_y = 'binary' is reproducible with set.seed", {
   expect_equal(a$y, b$y)
   expect_equal(a$g, b$g)
   expect_equal(a$e, b$e)
+})
+
+test_that("GenData beta_0 = 0 gives binary prevalence near 50% when effects are 0", {
+  set.seed(20)
+  df <- GenData(
+    n = 20000,
+    beta_g = 0,
+    beta_e = 0,
+    beta_h = 0,
+    beta_0 = 0,
+    type_y = "binary",
+    var_resid = 1
+  )
+  expect_true(abs(mean(df$y) - 0.5) < 0.02)
+})
+
+test_that("GenData beta_0 shifts binary prevalence (probit intercept)", {
+  set.seed(21)
+  low <- GenData(
+    n = 40000,
+    beta_g = 0,
+    beta_e = 0,
+    beta_h = 0,
+    beta_0 = -0.5,
+    type_y = "binary",
+    var_resid = 1
+  )
+  set.seed(21)
+  high <- GenData(
+    n = 40000,
+    beta_g = 0,
+    beta_e = 0,
+    beta_h = 0,
+    beta_0 = 0.5,
+    type_y = "binary",
+    var_resid = 1
+  )
+  expect_true(mean(low$y) < 0.5)
+  expect_true(mean(high$y) > 0.5)
+  expect_true(mean(low$y) < mean(high$y))
+})
+
+test_that("GenData beta_0 shifts quantitative y by the intercept", {
+  set.seed(22)
+  a <- GenData(
+    n = 5000,
+    beta_0 = 0,
+    beta_g = 0,
+    beta_e = 0,
+    beta_h = 0,
+    type_y = "quant",
+    var_resid = 1
+  )
+  set.seed(22)
+  b <- GenData(
+    n = 5000,
+    beta_0 = 2,
+    beta_g = 0,
+    beta_e = 0,
+    beta_h = 0,
+    type_y = "quant",
+    var_resid = 1
+  )
+  expect_equal(mean(b$y) - mean(a$y), 2, tolerance = 0.05)
 })
 
 # ------------------------------------------------------------------------------

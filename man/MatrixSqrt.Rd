@@ -4,7 +4,7 @@
 \alias{MatrixSqrt}
 \title{Matrix Square Root}
 \usage{
-MatrixSqrt(S, eps = 1e-08)
+MatrixSqrt(S, eps)
 }
 \arguments{
 \item{S}{(p x p) symmetric numeric matrix.}

@@ -20,7 +20,8 @@ GenData(
   var_e = 1,
   var_exp = 0.25,
   var_g = NULL,
-  var_resid = NULL
+  var_resid = NULL,
+  beta_0 = 0
 )
 }
 \arguments{
@@ -57,6 +58,8 @@ phenotypes, this refers to the proportion of latent variation explained.}
 \item{var_g}{Variance of G, if type_g = "normal".}
 
 \item{var_resid}{Residual variance. Set to null to specify \code{var_exp} instead.}
+
+\item{beta_0}{Intercept in the linear (latent) predictor. Defaults to 0.}
 }
 \description{
 Simulates a data set containing the phenotype, genotype, environment, and
@@ -68,7 +71,7 @@ or it can be inferred by specifying the variance explained by (G, E, H).
 }
 \details{
 The phenotype can be continuous (type_y = "quant") or binary (type_y = "binary").
-For binary phenotypes, a probit model is used: Y = 1(eta + eps > 0) where
-eta = X * beta and eps ~ N(0, sigma^2). In this case, var_exp refers to the
-proportion of latent variation explained by (G, E, H).
+For binary phenotypes, a probit model is used: Y = 1(beta_0 + eta + eps > 0)
+where eta = G\emph{beta_g + E}beta_e + H*beta_h and eps ~ N(0, sigma^2). In this
+case, var_exp refers to the proportion of latent variation explained by (G, E, H).
 }

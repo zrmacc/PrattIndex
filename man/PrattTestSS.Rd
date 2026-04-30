@@ -2,7 +2,7 @@
 % Please edit documentation in R/test.R
 \name{PrattTestSS}
 \alias{PrattTestSS}
-\title{Null-calibrated Pratt index test from summary statistics}
+\title{Pratt test from summary statistics}
 \usage{
 PrattTestSS(
   n,
@@ -14,8 +14,7 @@ PrattTestSS(
   mu_g = NULL,
   var_g = NULL,
   mean_e,
-  var_e,
-  tau_cyh = 0.02
+  var_e
 )
 }
 \arguments{
@@ -41,25 +40,17 @@ Provide either \code{maf} or \code{mu_g} and \code{var_g}.}
 \item{mean_e}{Marginal mean of E.}
 
 \item{var_e}{Marginal variance of E.}
-
-\item{tau_cyh}{Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
-the p-value is set to NA because the chi-square approximation is unreliable.}
 }
 \value{
-Data.frame with \code{term}, \code{method}, \code{kappa} (Pratt index
-for H), \code{se}, \code{chisq}, \code{pval}, and \code{cyh}.
+Data.frame with \code{term} (G, E, H), \code{method} (\dQuote{Wald}),
+\code{kappa}, \code{se}, \code{chisq}, and \code{pval}.
 }
 \description{
-Performs the null-calibrated (score) test for the interaction Pratt index
-using only summary statistics, under the assumption G is independent of E.
-Uses the joint model coefficients (G, E, H = G*E), marginal variance of Y,
-MAF, and the mean and variance of E to reconstruct the null variance.
-}
-\details{
-For \eqn{\kappa_H}{kappa_H}, the point estimate agrees with
-\code{PrattIFTestSS}, but the standard error (and hence test statistic and
-p-value) is not numerically equal: this function uses the null-calibrated
-(score) variance under \eqn{H_0: \beta_H = 0}{H0: beta_H = 0}, while
-\code{PrattIFTestSS} uses the full-model delta-method variance. They are
-asymptotically equivalent under the null.
+Computes Wald tests for the Pratt indices for G, E, and H using the same
+inputs as the internal null-calibrated score test. The standard errors use the delta-method
+variance (gradient of kappa with respect to beta times variance of beta),
+which is asymptotically equivalent to the empirical influence-function
+variance used by \code{PrattIFTest} when the model holds. The exact
+influence-function variance (mean of IF^2) would require individual-level
+data or an analytic expectation under the full distribution of (G, E, Y).
 }

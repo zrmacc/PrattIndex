@@ -145,20 +145,25 @@ GenCovar <- function(
 
 #' Generate Phenotype
 #'
-#' @param beta 3 x 1 beta vector for the joint model.
+#' @param beta 3 x 1 beta vector for the joint model (G, E, H).
 #' @param x n x 3 covariate data.frame.
 #' @param var_exp Proportion of variance explained by (G, E, H). For type_y =
 #'   "binary", this refers to the proportion of latent variation explained.
 #' @param var_resid Residual variance. Set to null to specify `var_exp` instead.
 #' @param type_y Either "quant" for continuous phenotype or "binary" for binary
 #'   phenotype generated via probit model.
+#' @param beta_0 Intercept in the linear predictor. For `type_y = "binary"`,
+#'   the phenotype is generated from a probit model
+#'   \eqn{Y = 1\{beta_0 + X beta + eps > 0\}}; adjusting `beta_0` shifts marginal
+#'   prevalence.
 #' @return n x 1 phenotype vector.
 GenPheno <- function(
     beta,
     x,
     var_exp,
     var_resid = NULL,
-    type_y = "quant"
+    type_y = "quant",
+    beta_0 = 0
 ) {
 
   if (is.null(var_resid)) {
@@ -178,7 +183,7 @@ GenPheno <- function(
   }
 
   # Linear predictor.
-  eta <- as.numeric(data.matrix(x) %*% beta)
+  eta <- beta_0 + as.numeric(data.matrix(x) %*% beta)
 
   # Residuals.
   n <- length(eta)
@@ -208,9 +213,9 @@ GenPheno <- function(
 #' or it can be inferred by specifying the variance explained by (G, E, H).
 #'
 #' The phenotype can be continuous (type_y = "quant") or binary (type_y = "binary").
-#' For binary phenotypes, a probit model is used: Y = 1(eta + eps > 0) where
-#' eta = X * beta and eps ~ N(0, sigma^2). In this case, var_exp refers to the
-#' proportion of latent variation explained by (G, E, H).
+#' For binary phenotypes, a probit model is used: Y = 1(beta_0 + eta + eps > 0)
+#' where eta = G*beta_g + E*beta_e + H*beta_h and eps ~ N(0, sigma^2). In this
+#' case, var_exp refers to the proportion of latent variation explained by (G, E, H).
 #'
 #' @param beta_g Genetic beta.
 #' @param beta_e Environment beta.
@@ -230,6 +235,7 @@ GenPheno <- function(
 #'   phenotypes, this refers to the proportion of latent variation explained.
 #' @param var_g Variance of G, if type_g = "normal".
 #' @param var_resid Residual variance. Set to null to specify `var_exp` instead.
+#' @param beta_0 Intercept in the linear (latent) predictor. Defaults to 0.
 #' @export
 GenData <- function(
     beta_g = 0.1,
@@ -247,7 +253,8 @@ GenData <- function(
     var_e = 1,
     var_exp = 0.25,
     var_g = NULL,
-    var_resid = NULL
+    var_resid = NULL,
+    beta_0 = 0
 ) {
 
   # Covariates.
@@ -271,7 +278,8 @@ GenData <- function(
     x = x,
     var_exp = var_exp,
     var_resid = var_resid,
-    type_y = type_y
+    type_y = type_y,
+    beta_0 = beta_0
   )
 
   # Output.

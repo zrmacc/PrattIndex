@@ -244,22 +244,15 @@ PrattIFTest <- function(y, g, e) {
 }
 
 
-#' Pratt influence-function-style test from summary statistics
+#' Pratt test from summary statistics
 #'
 #' Computes Wald tests for the Pratt indices for G, E, and H using the same
-#' inputs as \code{PrattTestSS}. The standard errors use the delta-method
+#' inputs as the internal null-calibrated score test. The standard errors use the delta-method
 #' variance (gradient of kappa with respect to beta times variance of beta),
 #' which is asymptotically equivalent to the empirical influence-function
 #' variance used by \code{PrattIFTest} when the model holds. The exact
 #' influence-function variance (mean of IF^2) would require individual-level
 #' data or an analytic expectation under the full distribution of (G, E, Y).
-#'
-#' For \eqn{\kappa_H}{kappa_H}, the point estimate agrees with
-#' \code{PrattTestSS}, but the standard error (and hence test statistic and
-#' p-value) is not numerically equal: \code{PrattTestSS} uses the
-#' null-calibrated (score) variance under \eqn{H_0: \beta_H = 0}{H0: beta_H = 0},
-#' while \code{PrattIFTestSS} uses the full-model delta-method variance. They
-#' are asymptotically equivalent under the null.
 #'
 #' @param n Sample size.
 #' @param bg Coefficient of G from the joint model Y ~ G + E + H.
@@ -277,7 +270,7 @@ PrattIFTest <- function(y, g, e) {
 #' @return Data.frame with \code{term} (G, E, H), \code{method} (\dQuote{Wald}),
 #'   \code{kappa}, \code{se}, \code{chisq}, and \code{pval}.
 #' @export
-PrattIFTestSS <- function(
+PrattTestSS <- function(
     n,
     bg,
     be,
@@ -344,6 +337,12 @@ PrattIFTestSS <- function(
   )
   out$chisq <- (out$kappa / out$se)^2
   out$pval <- stats::pchisq(q = out$chisq, df = 1L, lower.tail = FALSE)
+
+  # Degenerate variance: if se is 0 or non-finite, p-value is undefined.
+  bad <- (!is.finite(out$se)) | (out$se == 0)
+  out$chisq[bad] <- NA_real_
+  out$pval[bad] <- NA_real_
+
   return(out)
 }
 
@@ -356,10 +355,10 @@ PrattIFTestSS <- function(
 #' MAF, and the mean and variance of E to reconstruct the null variance.
 #'
 #' For \eqn{\kappa_H}{kappa_H}, the point estimate agrees with
-#' \code{PrattIFTestSS}, but the standard error (and hence test statistic and
+#' \code{PrattTestSS}, but the standard error (and hence test statistic and
 #' p-value) is not numerically equal: this function uses the null-calibrated
 #' (score) variance under \eqn{H_0: \beta_H = 0}{H0: beta_H = 0}, while
-#' \code{PrattIFTestSS} uses the full-model delta-method variance. They are
+#' \code{PrattTestSS} uses the full-model delta-method variance. They are
 #' asymptotically equivalent under the null.
 #'
 #' @param n Sample size.
@@ -375,12 +374,10 @@ PrattIFTestSS <- function(
 #'   Provide either \code{maf} or \code{mu_g} and \code{var_g}.
 #' @param mean_e Marginal mean of E.
 #' @param var_e Marginal variance of E.
-#' @param tau_cyh Threshold for cyh (Cov(Y, H) under null). If |cyh| < tau_cyh,
-#'   the p-value is set to NA because the chi-square approximation is unreliable.
 #' @return Data.frame with \code{term}, \code{method}, \code{kappa} (Pratt index
 #'   for H), \code{se}, \code{chisq}, \code{pval}, and \code{cyh}.
-#' @export
-PrattTestSS <- function(
+#' @keywords internal
+.PrattTestSSNullCal <- function(
     n,
     bg,
     be,
@@ -390,8 +387,7 @@ PrattTestSS <- function(
     mu_g = NULL,
     var_g = NULL,
     mean_e,
-    var_e,
-    tau_cyh = 0.02
+    var_e
 ) {
 
   # G: additive coding 0,1,2 => E[G] = 2*maf, Var(G) = 2*maf*(1-maf)
@@ -440,8 +436,8 @@ PrattTestSS <- function(
   chisq <- (kappa_h / se)^2
   pval <- stats::pchisq(q = chisq, df = 1, lower.tail = FALSE)
 
-  # Apply cyh threshold: if |cyh| < tau_cyh, p-value is unreliable.
-  if (abs(cyh) < tau_cyh) {
+  # Degenerate variance: if se is 0 or non-finite, p-value is undefined.
+  if (!is.finite(se) || se == 0) {
     pval <- NA_real_
   }
 

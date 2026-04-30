@@ -59,7 +59,7 @@ In the output,
 
 ## Pratt test from summary statistics
 
-`PrattTestSS` performs the 2-sided test of $H_{0}: \kappa_{H} = 0$ starting from summary statistics. The required inputs are:
+`PrattTestSS` performs Wald tests of $H_{0}: \kappa = 0$ for the Pratt indices of $G$, $E$, and $H$ starting from summary statistics. The required inputs are:
 
 1. The joint-model coefficients $\hat{\beta}_G$, $\hat{\beta}_E$, $\hat{\beta}_H$.
 2. The mean and variance of the variant $G$.
@@ -97,6 +97,6 @@ show(result_ss)
 
 #### Notes
 
-* In order to minimize the number of inputs required, `PrattTestSS` makes the assumption that $G$ and $E$ are independent. Note that the test starting from individual-level data does not assume $G \perp E$, which accounts for the numeric discrepancy. 
+* In order to minimize the number of inputs required, `PrattTestSS` makes the assumption that $G$ and $E$ are independent. Note that the test starting from individual-level data does not assume $G \perp E$. 
 
 * Minor allele frequency can be provided in place of the mean and variance of $G$. If provided, the mean and variance are calculated as `mu_g <- 2 * maf` and `var_g <- 2 * maf * (1 - maf)`.

@@ -3,7 +3,6 @@
 export(CalcQuadFormP)
 export(GenData)
 export(PrattIFTest)
-export(PrattIFTestSS)
 export(PrattIndex)
 export(PrattTest)
 export(PrattTestSS)

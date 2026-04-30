@@ -45,7 +45,7 @@ PrattInfluenceCpp <- function(y, g, e) {
 #' Matrix Square Root
 #' @param S (p x p) symmetric numeric matrix.
 #' @param eps Minimum eigenvalue threshold (smaller non-negative eigenvalues set to 0).
-MatrixSqrt <- function(S, eps = 1e-8) {
+MatrixSqrt <- function(S, eps) {
     .Call(`_PrattIndex_MatrixSqrt`, S, eps)
 }
 

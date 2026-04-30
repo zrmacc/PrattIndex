@@ -4,10 +4,10 @@
 \alias{GenPheno}
 \title{Generate Phenotype}
 \usage{
-GenPheno(beta, x, var_exp, var_resid = NULL, type_y = "quant")
+GenPheno(beta, x, var_exp, var_resid = NULL, type_y = "quant", beta_0 = 0)
 }
 \arguments{
-\item{beta}{3 x 1 beta vector for the joint model.}
+\item{beta}{3 x 1 beta vector for the joint model (G, E, H).}
 
 \item{x}{n x 3 covariate data.frame.}
 
@@ -18,6 +18,11 @@ GenPheno(beta, x, var_exp, var_resid = NULL, type_y = "quant")
 
 \item{type_y}{Either "quant" for continuous phenotype or "binary" for binary
 phenotype generated via probit model.}
+
+\item{beta_0}{Intercept in the linear predictor. For \code{type_y = "binary"},
+the phenotype is generated from a probit model
+\eqn{Y = 1\{beta_0 + X beta + eps > 0\}}; adjusting \code{beta_0} shifts marginal
+prevalence.}
 }
 \value{
 n x 1 phenotype vector.
